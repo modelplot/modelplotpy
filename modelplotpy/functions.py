@@ -820,7 +820,7 @@ def check_input(input_list, check_list, check = ''):
             raise ValueError('Invalid input for parameter %s. The input for %s is 1 or more elements from %s and put in a list.' % (check, check, check_list))
     return list(input_list)
 
-class model_plots(object):
+class modelplotpy(object):
     """ Create a model_plots object
     
     Parameters
