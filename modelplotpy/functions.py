@@ -61,7 +61,7 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
     ax.set_ylim([0, 1])
     
     if scope == "no_comparison":
-        plt.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
+        ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
         ax.plot(plot_input.decile, plot_input.pct, label = classes[0], color = colors[0])
         ax.plot(plot_input.decile, plot_input.pct_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
@@ -69,19 +69,19 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
         for col, i in enumerate(datasets):
             ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.pct[plot_input.dataset_label == i], label = i, color = colors[col])
             ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.pct_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-        plt.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
+        ax.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     elif scope == "compare_models":
         for col, i in enumerate(models):
             ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.pct[plot_input.model_label == i], label = i, color = colors[col])
             ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.pct_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-        plt.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
+        ax.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     else: #compare_targetclasses
         for col, i in enumerate(classes):
             ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.pct[plot_input.target_class == i], label = i, color = colors[col])
             ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.pct_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-        plt.sut_title("Scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
+        ax.set_title("Scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     
     if highlight_decile != False:
@@ -215,7 +215,7 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
     ax.set_ylim([0, 1])
     
     if scope == "no_comparison":
-        plt.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
+        ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
         ax.plot(plot_input.decile, plot_input.cumpct, label = classes[0], color = colors[0])
         ax.plot(plot_input.decile, plot_input.pct_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
@@ -223,19 +223,19 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
         for col, i in enumerate(datasets):
             ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.cumpct[plot_input.dataset_label == i], label = i, color = colors[col])
             ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.pct_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-        plt.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
+        ax.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     elif scope == "compare_models":
         for col, i in enumerate(models):
             ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.cumpct[plot_input.model_label == i], label = i, color = colors[col])
             ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.pct_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-        plt.set_title("Scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
+        ax.set_title("Scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     else: #compare_targetclasses
         for col, i in enumerate(classes):
             ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.cumpct[plot_input.target_class == i], label = i, color = colors[col])
             ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.pct_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-        plt.set_title("Comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
+        ax.set_title("Comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     
     if highlight_decile != False:
@@ -379,19 +379,19 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
         for col, i in enumerate(datasets):
             ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.cumlift[plot_input.dataset_label == i], label = i, color = colors[col])
             #ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.cumlift_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-        plt.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
+        ax.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     elif scope == "compare_models":
         for col, i in enumerate(models):
             ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.cumlift[plot_input.model_label == i], label = i, color = colors[col])
             #ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.cumlift_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-        plt.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
+        ax.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     else: #compare_targetclasses
         for col, i in enumerate(classes):
             ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.cumlift[plot_input.target_class == i], label = i, color = colors[col])
             #ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.cumlift_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-        plt.set_title("scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
+        ax.set_title("scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     
     if highlight_decile != False:
@@ -527,7 +527,7 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
     ax.set_ylim([0, 1])
     
     if scope == "no_comparison":
-        plt.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
+        ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
         ax.plot(plot_input.decile, plot_input.cumgain, label = classes[0], color = colors[0])
         ax.plot(plot_input.decile, plot_input.gain_opt, linestyle = 'dashed', label = "optimal gains (%s)" % classes[0], color = colors[0], linewidth = 1.5)
         ax.legend(loc = 'lower right', shadow = False, frameon = False)
@@ -535,19 +535,19 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
         for col, i in enumerate(datasets):
             ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.cumgain[plot_input.dataset_label == i], label = i, color = colors[col])
             ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.gain_opt[plot_input.dataset_label == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col], linewidth = 1.5)
-        plt.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
+        ax.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'lower right', shadow = False, frameon = False)
     elif scope == "compare_models":
         for col, i in enumerate(models):
             ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.cumgain[plot_input.model_label == i], label = i, color = colors[col])
             ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.gain_opt[plot_input.model_label == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col], linewidth = 1.5)
-        plt.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
+        ax.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'lower right', shadow = False, frameon = False)
     else: #compare_targetclasses
         for col, i in enumerate(classes):
             ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.cumgain[plot_input.target_class == i], label = i, color = colors[col])
             ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.gain_opt[plot_input.target_class == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col], linewidth = 1.5)
-        plt.set_title("scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
+        ax.set_title("scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
         ax.legend(loc = 'lower right', shadow = False, frameon = False)
     
     if highlight_decile != False:
