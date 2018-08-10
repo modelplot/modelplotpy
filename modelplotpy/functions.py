@@ -50,7 +50,7 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
     fig, ax = plt.subplots(figsize = (12,7))
     ax.set_xlabel("decile")
     ax.set_ylabel("response")
-    ax.suptitle('Response', fontsize = 20)
+    plt.suptitle('Response', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -204,7 +204,7 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
     fig, ax = plt.subplots(figsize = (12,7))
     ax.set_xlabel("decile")
     ax.set_ylabel("cumulative response")
-    ax.suptitle('Cumulative response', fontsize = 20)
+    plt.suptitle('Cumulative response', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -359,7 +359,7 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
     fig, ax = plt.subplots(figsize = (12,7))
     ax.set_xlabel("decile")
     ax.set_ylabel("cumulative lift")
-    ax.suptitle('Cumulative lift', fontsize = 20)
+    plt.suptitle('Cumulative lift', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -493,6 +493,7 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
     
     highlight_how : str, plot_text default
         Highlight_how specifies where information about the model performance is printed. It can be shown as text, on the plot or both.
+    
     Returns
     -------
     It returns a matplotlib.axes._subplots.AxesSubplot object that can be transformed into the same plot with the .figure command.
@@ -514,7 +515,7 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
     fig, ax = plt.subplots(figsize = (12,7))
     ax.set_xlabel("decile")
     ax.set_ylabel("cumulative gains")
-    ax.suptitle('Cumulative gains', fontsize = 20)
+    plt.suptitle('Cumulative gains', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -765,7 +766,7 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
         ax2.legend(loc = 'upper right', shadow = False, frameon = False)
         ax3.legend(loc = 'upper right', shadow = False, frameon = False)
         ax4.legend(loc = 'upper right', shadow = False, frameon = False)
-    plt.suptitle(title, fontsize=16)
+    plt.suptitle(title, fontsize = 16)
     if save_fig == True:
         if not save_fig_filename:
             location = '%s/Plot all.png' % os.getcwd()
