@@ -516,7 +516,7 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
     ax.set_xlabel("decile")
     ax.set_ylabel("cumulative gains")
     plt.suptitle('Cumulative gains', fontsize = 16)
-    ax.xticks(np.arange(1, 11, 1))
+    ax.set_xticks(np.arange(1, 11, 1))
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
