@@ -34,5 +34,5 @@ setuptools.setup(
 #    tests_require=test_requirements,
     url='https://github.com/pbmarcus/modelplotpy',
 #    zip_safe=False,
-    version='0.0.1'
+    version='1.0.0'
 )
