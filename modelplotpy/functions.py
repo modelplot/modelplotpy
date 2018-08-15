@@ -157,7 +157,7 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
             print("The response chart is saved in %s" % location)
         else:
             plt.savefig(save_fig_filename, dpi = 300)
-            print("The response chart is saved in %s" % fname)
+            print("The response chart is saved in %s" % save_fig_filename)
         plt.show()
         plt.gcf().clear()
     plt.show()
@@ -313,7 +313,7 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
             print("The cumulative response chart is saved in %s" % location)
         else:
             plt.savefig(save_fig_filename, dpi = 300)
-            print("The cumulative response chart is saved in %s" % fname)
+            print("The cumulative response chart is saved in %s" % save_fig_filename)
         plt.show()
         plt.gcf().clear()
     plt.show()
@@ -470,7 +470,7 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
             print("The cumulative lift chart is saved in %s" % location)
         else:
             plt.savefig(save_fig_filename, dpi = 300)
-            print("The cumulative lift chart is saved in %s" % fname)
+            print("The cumulative lift chart is saved in %s" % save_fig_filename)
         plt.show()
         plt.gcf().clear()
     plt.show()
@@ -627,7 +627,7 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
             print("The cumulative gains chart is saved in %s" % location)
         else:
             plt.savefig(save_fig_filename, dpi = 300)
-            print("The cumulative gains chart is saved in %s" % fname)
+            print("The cumulative gains chart is saved in %s" % save_fig_filename)
         plt.show()
         plt.gcf().clear()
     plt.show()
@@ -782,7 +782,7 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
             print("The multi plot object is saved in %s" % location)
         else:
             plt.savefig(save_fig_filename, dpi = 300)
-            print("The multi plot object is saved in %s" % fname)
+            print("The multi plot object is saved in %s" % save_fig_filename)
         plt.show()
         plt.gcf().clear()
     plt.show()
