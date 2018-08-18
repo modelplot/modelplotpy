@@ -152,12 +152,12 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
     
     if save_fig == True:
         if not save_fig_filename:
-            location = '%s/Response chart.png' % os.getcwd()
+            location = '%s/Response plot.png' % os.getcwd()
             plt.savefig(location, dpi = 300)
-            print("The response chart is saved in %s" % location)
+            print("The response plot is saved in %s" % location)
         else:
             plt.savefig(save_fig_filename, dpi = 300)
-            print("The response chart is saved in %s" % fname)
+            print("The response plot is saved in %s" % save_fig_filename)
         plt.show()
         plt.gcf().clear()
     plt.show()
@@ -308,12 +308,12 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
                     
     if save_fig == True:
         if not save_fig_filename:
-            location = '%s/Cumulative response chart.png' % os.getcwd()
+            location = '%s/Cumulative response plot.png' % os.getcwd()
             plt.savefig(location, dpi = 300)
-            print("The cumulative response chart is saved in %s" % location)
+            print("The cumulative response plot is saved in %s" % location)
         else:
             plt.savefig(save_fig_filename, dpi = 300)
-            print("The cumulative response chart is saved in %s" % fname)
+            print("The cumulative response plot is saved in %s" % save_fig_filename)
         plt.show()
         plt.gcf().clear()
     plt.show()
@@ -465,12 +465,12 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
     
     if save_fig == True:
         if not save_fig_filename:
-            location = '%s/Cumulative lift chart.png' % os.getcwd()
+            location = '%s/Cumulative lift plot.png' % os.getcwd()
             plt.savefig(location, dpi = 300)
-            print("The cumulative lift chart is saved in %s" % location)
+            print("The cumulative lift plot is saved in %s" % location)
         else:
             plt.savefig(save_fig_filename, dpi = 300)
-            print("The cumulative lift chart is saved in %s" % fname)
+            print("The cumulative lift plot is saved in %s" % save_fig_filename)
         plt.show()
         plt.gcf().clear()
     plt.show()
@@ -622,12 +622,12 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
     
     if save_fig == True:
         if not save_fig_filename:
-            location = '%s/Cumulative gains chart.png' % os.getcwd()
+            location = '%s/Cumulative gains plot.png' % os.getcwd()
             plt.savefig(location, dpi = 300)
-            print("The cumulative gains chart is saved in %s" % location)
+            print("The cumulative gains plot is saved in %s" % location)
         else:
             plt.savefig(save_fig_filename, dpi = 300)
-            print("The cumulative gains chart is saved in %s" % fname)
+            print("The cumulative gains plot is saved in %s" % save_fig_filename)
         plt.show()
         plt.gcf().clear()
     plt.show()
@@ -662,8 +662,6 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex = False, sharey = False, figsize = (15,10))
-    #plt.text(x=0.5, y=0.94, s="4 evaluation charts", fontsize=18, ha="center", transform=fig.transFigure)
-
     ax1.set_title('Cumulative gains', fontweight='bold')
     ax1.set_ylabel('cumulative gains')
     #ax1.set_xlabel('decile')
@@ -779,10 +777,10 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
         if not save_fig_filename:
             location = '%s/Plot all.png' % os.getcwd()
             plt.savefig(location, dpi = 300)
-            print("The multi plot object is saved in %s" % location)
+            print("The plot all plot is saved in %s" % location)
         else:
             plt.savefig(save_fig_filename, dpi = 300)
-            print("The multi plot object is saved in %s" % fname)
+            print("The plot all plot is saved in %s" % save_fig_filename)
         plt.show()
         plt.gcf().clear()
     plt.show()
