@@ -14,14 +14,21 @@ modelplotpy
         :alt: Documentation Status
 
 
+Introduction
+------------
 
+Build nice plots to explain your model to business colleages
+Easily make plots in just a few steps:
+* Cumulative gains
+* Cumulative lift 
+* Reponse
+* Cumulative response
 
-Build nice model plots
-
-
+More information
+----------------
 * Free software: GNU General Public License v3
-* Documentation: https://model-plots.readthedocs.io.
-
+* Documentation: https://modelplotpy.readthedocs.io/ (in development) 
+* Blogs: https://modelplot.github.io/ for both R and Python
 
 Features
 --------
