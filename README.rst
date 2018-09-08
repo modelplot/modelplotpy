@@ -18,7 +18,9 @@ Introduction
 ------------
 
 Build nice plots to explain your model to business colleages
-Easily make plots in just a few steps:
+
+Plots included
+--------------
 * Cumulative gains
 * Cumulative lift 
 * Reponse
@@ -35,10 +37,3 @@ Features
 
 * TODO
 
-Credits
--------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
