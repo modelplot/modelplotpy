@@ -14,24 +14,26 @@ modelplotpy
         :alt: Documentation Status
 
 
+Introduction
+------------
 
+Build nice plots to explain your model to business colleages
 
-Build nice model plots
+Plots included
+--------------
+* Cumulative gains
+* Cumulative lift 
+* Reponse
+* Cumulative response
 
-
+More information
+----------------
 * Free software: GNU General Public License v3
-* Documentation: https://model-plots.readthedocs.io.
-
+* Documentation: https://modelplotpy.readthedocs.io/ (in development) 
+* Blogs: https://modelplot.github.io/ for both R and Python
 
 Features
 --------
 
 * TODO
 
-Credits
--------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
