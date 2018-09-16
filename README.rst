@@ -9,18 +9,18 @@ modelplotpy
 .. image:: https://img.shields.io/travis/pbmarcus/modelplotpy.svg
         :target: https://travis-ci.org/pbmarcus/modelplotpy
 
-.. image:: https://readthedocs.org/projects/model-plots/badge/?version=latest
-        :target: https://model-plots.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/modelplotpy/badge/?version=latest
+        :target: https://modelplotpy.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 
 Introduction
 ------------
 
-Build nice plots to explain your model to business colleages
+Build nice plots to explain your modelling efforts easily to business colleages.
 
-Plots included
---------------
+Plots that you can make easily
+------------------------------
 * Cumulative gains
 * Cumulative lift 
 * Reponse
