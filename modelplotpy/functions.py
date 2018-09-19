@@ -1126,7 +1126,7 @@ class modelplotpy(object):
         select_targetclass = check_input(select_targetclass, list(self.models[1].classes_), 'select_targetclass')
 
         if scope == 'no_comparison':
-            print('No scope specified, single evaluation line will be plotted.')
+            print('Default scope value no_comparison selected, single evaluation line will be plotted.')
             if len(select_model_label) >= 1:
                 select_model_label = select_model_label
             else:
@@ -1146,7 +1146,7 @@ class modelplotpy(object):
                 (deciles_aggregate.model_label == select_model_label[0]) & 
                 (deciles_aggregate.dataset_label == select_dataset_label[0]) & 
                 (deciles_aggregate.target_class == select_targetclass[0])]
-            print('Target class %s , dataset %s and model %s.' % (select_targetclass[0], select_dataset_label[0], select_model_label[0]))
+            print('Target class %s, dataset %s and model %s.' % (select_targetclass[0], select_dataset_label[0], select_model_label[0]))
         elif scope == 'compare_models':
             print('compare models')
             if len(select_model_label) >= 2:
