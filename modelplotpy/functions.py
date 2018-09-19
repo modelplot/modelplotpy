@@ -1126,7 +1126,7 @@ class modelplotpy(object):
         select_targetclass = check_input(select_targetclass, list(self.models[1].classes_), 'select_targetclass')
 
         if scope == 'no_comparison':
-            print('No comparison specified! Single evaluation line will be plotted')
+            print('No scope specified, single evaluation line will be plotted.')
             if len(select_model_label) >= 1:
                 select_model_label = select_model_label
             else:
@@ -1139,14 +1139,14 @@ class modelplotpy(object):
                 select_targetclass = select_targetclass
             elif select_smallest_targetclass == True:
                 select_targetclass = [self.label_data[0].value_counts(ascending = True).idxmin()]
-                print("The label with smallest class is %s" % select_targetclass)
+                print("The label with smallest class is %s" % select_targetclass[0])
             else:
                 select_targetvalue = list(self.models[1].classes_)
             plot_input = deciles_aggregate[
                 (deciles_aggregate.model_label == select_model_label[0]) & 
                 (deciles_aggregate.dataset_label == select_dataset_label[0]) & 
                 (deciles_aggregate.target_class == select_targetclass[0])]
-            print('Target value %s plotted for dataset %s and model %s.' % (select_targetclass[0], select_dataset_label[0], select_model_label[0]))
+            print('Target class %s , dataset %s and model %s.' % (select_targetclass[0], select_dataset_label[0], select_model_label[0]))
         elif scope == 'compare_models':
             print('compare models')
             if len(select_model_label) >= 2:
@@ -1190,7 +1190,7 @@ class modelplotpy(object):
                 (deciles_aggregate.dataset_label.isin(select_dataset_label)) &
                 (deciles_aggregate.target_class == select_targetclass[0])]
         else: # scope == 'compare_targetclasses'
-            print('compare target values')
+            print('compare target classes')
             if len(select_model_label) >= 1:
                 select_model_label = select_model_label
             else:
