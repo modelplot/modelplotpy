@@ -45,6 +45,7 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
     datasets = plot_input.dataset_label.unique().tolist()
     classes  = plot_input.target_class.unique().tolist()
     scope = plot_input.scope.unique()[0]
+    ntiles = plot_input.decile.nunique() - 1
     colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
     
     fig, ax = plt.subplots(figsize = (12,7))
@@ -52,13 +53,13 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
     ax.set_ylabel("response")
     plt.suptitle('Response', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax.set_xticks(np.arange(1, 11, 1))
+    ax.set_xticks(np.arange(1, ntiles + 1, 1))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
     ax.grid(True)
-    ax.set_xlim([1, 10])
+    ax.set_xlim([1, ntiles])
     ax.set_ylim([0, 1])
     
     if scope == "no_comparison":
@@ -87,7 +88,7 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
     
     if highlight_decile != False:
         
-        if highlight_decile not in np.linspace(1, 10, num = 10).tolist():
+        if highlight_decile not in np.linspace(1, ntiles, num = ntiles).tolist():
             raise TypeError('Invalid value for highlight_decile parameter. It must be an int value between 1 and 10')
             
         if highlight_how not in ('plot','text','plot_text'):
@@ -200,6 +201,7 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
     datasets = plot_input.dataset_label.unique().tolist()
     classes  = plot_input.target_class.unique().tolist()
     scope = plot_input.scope.unique()[0]
+    ntiles = plot_input.decile.nunique() - 1
     colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
     
     fig, ax = plt.subplots(figsize = (12,7))
@@ -207,13 +209,13 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
     ax.set_ylabel("cumulative response")
     plt.suptitle('Cumulative response', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax.set_xticks(np.arange(1, 11, 1))
+    ax.set_xticks(np.arange(1, ntiles + 1, 1))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
     ax.grid(True)
-    ax.set_xlim([1, 10])
+    ax.set_xlim([1, ntiles])
     ax.set_ylim([0, 1])
     
     if scope == "no_comparison":
@@ -242,7 +244,7 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
     
     if highlight_decile != False:
         
-        if highlight_decile not in np.linspace(1, 10, num = 10).tolist():
+        if highlight_decile not in np.linspace(1, ntiles, num = ntiles).tolist():
             raise TypeError('Invalid value for highlight_decile parameter. It must be an int value between 1 and 10')
             
         if highlight_how not in ('plot','text','plot_text'):
@@ -356,6 +358,7 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
     datasets = plot_input.dataset_label.unique().tolist()
     classes  = plot_input.target_class.unique().tolist()
     scope = plot_input.scope.unique()[0]
+    ntiles = plot_input.decile.nunique() - 1
     colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
 
     fig, ax = plt.subplots(figsize = (12,7))
@@ -369,9 +372,9 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
     ax.grid(True)
-    ax.set_xlim([1, 10])
+    ax.set_xlim([1, ntiles])
     ax.set_ylim([0, max(plot_input.cumlift)])
-    ax.plot(list(range(1, 11, 1)), [1] * 10, linestyle = 'dashed', label = "no lift", color = 'grey')
+    ax.plot(list(range(1, ntiles, 1)), [1] * ntiles, linestyle = 'dashed', label = "no lift", color = 'grey')
     
     if scope == "no_comparison":
         ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
@@ -399,7 +402,7 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
     
     if highlight_decile != False:
         
-        if highlight_decile not in np.linspace(1, 10, num = 10).tolist():
+        if highlight_decile not in np.linspace(1, ntiles, num = ntiles).tolist():
             raise TypeError('Invalid value for highlight_decile parameter. It must be an int value between 1 and 10')
             
         if highlight_how not in ('plot','text','plot_text'):
@@ -513,21 +516,22 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
     datasets = plot_input.dataset_label.unique().tolist()
     classes  = plot_input.target_class.unique().tolist()
     scope = plot_input.scope.unique()[0]
+    ntiles = plot_input.decile.nunique() - 1
     colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
     
     fig, ax = plt.subplots(figsize = (12,7))
     ax.set_xlabel("decile")
     ax.set_ylabel("cumulative gains")
     plt.suptitle('Cumulative gains', fontsize = 16)
-    ax.set_xticks(np.arange(0, 11, 1))
+    ax.set_xticks(np.arange(0, ntiles + 1, 1))
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
-    ax.plot(list(range(0, 11, 1)), np.linspace(0, 1, num = 11).tolist(), linestyle = 'dashed', label = "minimal gains", color = 'grey')
+    ax.plot(list(range(0, ntiles + 1, 1)), np.linspace(0, 1, num = ntiles + 1).tolist(), linestyle = 'dashed', label = "minimal gains", color = 'grey')
     ax.grid(True)
-    ax.set_xlim([0, 10])
+    ax.set_xlim([0, ntiles])
     ax.set_ylim([0, 1])
     
     if scope == "no_comparison":
@@ -556,7 +560,7 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
     
     if highlight_decile != False:
         
-        if highlight_decile not in np.linspace(1, 10, num = 10).tolist():
+        if highlight_decile not in np.linspace(1, ntiles, num = ntiles).tolist():
             raise TypeError('Invalid value for highlight_decile parameter. It must be an int value between 1 and 10')
             
         if highlight_how not in ('plot','text','plot_text'):
@@ -659,6 +663,7 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     datasets = plot_input.dataset_label.unique().tolist()
     classes  = plot_input.target_class.unique().tolist()
     scope = plot_input.scope.unique()[0]
+    ntiles = plot_input.decile.nunique() - 1
     colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex = False, sharey = False, figsize = (15,10))
@@ -666,37 +671,37 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     ax1.set_ylabel('cumulative gains')
     #ax1.set_xlabel('decile')
     ax1.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax1.set_xticks(np.arange(0, 11, 1))
+    ax1.set_xticks(np.arange(0, ntiles + 1, 1))
     ax1.set_ylim(0, 1)
-    ax1.set_xlim(0, 10)
-    ax1.set_xticks(np.arange(0, 11, 1))
+    ax1.set_xlim(0, ntiles)
+    ax1.set_xticks(np.arange(0, ntiles + 1, 1))
     ax1.spines['right'].set_visible(False)
     ax1.spines['top'].set_visible(False)
     ax1.grid(True)
     ax1.yaxis.set_ticks_position('left')
     ax1.xaxis.set_ticks_position('bottom')
-    ax1.plot(list(range(0, 11, 1)), np.linspace(0, 1, num = 11).tolist(), linestyle = 'dashed', label = "minimal gains", color = 'grey')
+    ax1.plot(list(range(0, ntiles + 1, 1)), np.linspace(0, 1, num = ntiles + 1).tolist(), linestyle = 'dashed', label = "minimal gains", color = 'grey')
 
     ax2.set_title('Cumulative lift', fontweight='bold')
     ax2.set_ylabel('cumulative lift')
     #ax2.set_xlabel('decile')
     ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax2.set_xticks(np.arange(1, 11, 1))
-    ax2.set_xlim(1, 10)
+    ax2.set_xticks(np.arange(1, ntiles + 1, 1))
+    ax2.set_xlim(1, ntiles)
     ax2.set_ylim([0, max(plot_input.cumlift)])
     ax2.spines['right'].set_visible(False)
     ax2.spines['top'].set_visible(False)
     ax2.grid(True)
     ax2.yaxis.set_ticks_position('left')
     ax2.xaxis.set_ticks_position('bottom')
-    ax2.plot(list(range(1, 11, 1)), [1] * 10, linestyle = 'dashed', label = "no lift", color = 'grey')
+    ax2.plot(list(range(1, ntiles + 1, 1)), [1] * ntiles, linestyle = 'dashed', label = "no lift", color = 'grey')
 
     ax3.set_title('Response', fontweight='bold')
     ax3.set_ylabel('response')
     ax3.set_xlabel('decile')
     ax3.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax3.set_xticks(np.arange(1, 11, 1))
-    ax3.set_xlim(1, 10)
+    ax3.set_xticks(np.arange(1, ntiles + 1, 1))
+    ax3.set_xlim(1, ntiles)
     ax3.set_ylim(0, 1)
     ax3.spines['right'].set_visible(False)
     ax3.spines['top'].set_visible(False)
@@ -708,8 +713,8 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     ax4.set_ylabel('cumulative response')
     ax4.set_xlabel('decile')
     ax4.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax4.set_xticks(np.arange(1, 11, 1))
-    ax4.set_xlim(1, 10)
+    ax4.set_xticks(np.arange(1, ntiles + 1, 1))
+    ax4.set_xlim(1, ntiles)
     ax4.set_ylim(0, 1)
     ax4.spines['right'].set_visible(False)
     ax4.spines['top'].set_visible(False)
@@ -860,7 +865,7 @@ class modelplotpy(object):
 
     """
 
-    def __init__(self, feature_data = [], label_data = [], dataset_labels = [], models = [], model_labels = [], seed = 999):
+    def __init__(self, feature_data = [], label_data = [], dataset_labels = [], models = [], model_labels = [], ntiles = 10, seed = 999):
         """ Create a model_plots object
 
         Parameters
@@ -879,7 +884,10 @@ class modelplotpy(object):
         
         model_labels : list of str
             Names of the (sk-learn) models
-            
+        
+        ntiles : int, default 10
+            The number of splits 10 is called deciles, 100 is called percentiles.
+        
         seed : int, default 999
             Make results reproducible, in the case of a small dataset the data cannot be split into 10 unique deciles.
 
@@ -893,9 +901,10 @@ class modelplotpy(object):
         self.dataset_labels = dataset_labels
         self.models = models
         self.model_labels = model_labels
+        self.ntiles = ntiles
         self.seed = seed
 
-    def prepare_scores_and_deciles(self):
+    def prepare_scores_and_ntiles(self):
         """ Create eval_tot
         
         This function builds the pandas dataframe eval_tot that contains for each feature and label data pair given a description the actual and predicted value.
@@ -917,6 +926,9 @@ class modelplotpy(object):
         
         model_labels : list of str
             Names of the (sk-learn) models
+            
+        ntiles : int, default 10
+            The number of splits 10 is called deciles, 100 is called percentiles.
             
         seed : int, default 999
             Make results reproducible, in the case of a small dataset the data cannot be split into 10 unique deciles.
@@ -960,13 +972,13 @@ class modelplotpy(object):
                     np.random.seed(self.seed)
                     prob_plus_smallrandom = range01(dataset[['prob_' + k]] + (np.random.uniform(size = (n, 1)) / 1000000))
                     prob_plus_smallrandom = np.array(prob_plus_smallrandom['prob_' + k]) # cast to a 1 dimension thing
-                    dataset["dec_" + k] = 10 - pd.DataFrame(pd.qcut(prob_plus_smallrandom, 10, labels = False), index = self.feature_data[j].index)
+                    dataset["dec_" + k] = self.ntiles - pd.DataFrame(pd.qcut(prob_plus_smallrandom, self.ntiles, labels = False), index = self.feature_data[j].index)
                     # append the different datasets
                 data_set = data_set.append(dataset)
             final = final.append(data_set)
         return final
     
-    def aggregate_over_deciles(self):
+    def aggregate_over_ntiles(self):
         """ Create eval_t_tot
         
         This function builds the pandas dataframe eval_t_tot and contains the aggregated output.
@@ -989,6 +1001,9 @@ class modelplotpy(object):
         model_labels : list of str
             Names of the (sk-learn) models
             
+        ntiles : int, default 10
+            The number of splits 10 is called deciles, 100 is called percentiles.
+            
         seed : int, default 999
             Make results reproducible, in the case of a small dataset the data cannot be split into 10 unique deciles.
 
@@ -1001,7 +1016,7 @@ class modelplotpy(object):
         ------
         ValueError: If there is no match with the complete list or the input list again.
         """
-        scores_and_deciles = self.prepare_scores_and_deciles()
+        scores_and_deciles = self.prepare_scores_and_ntiles()
         scores_and_deciles['all'] = 1
         deciles_aggregate = pd.DataFrame()
         add_origin = pd.DataFrame()
@@ -1016,11 +1031,11 @@ class modelplotpy(object):
                         'lift': [0], 'cumlift': [0], 'cumlift_ref': [1]
                     })
                     deciles_agg = []
-                    deciles_agg = pd.DataFrame(index=range(1,11))
+                    deciles_agg = pd.DataFrame(index=range(1, self.ntiles + 1))
                     deciles_agg['model_label'] = self.model_labels[i]
                     deciles_agg['dataset_label'] = k
                     deciles_agg['target_class'] = j
-                    deciles_agg['decile'] = range(1,11,1)
+                    deciles_agg['decile'] = range(1, self.ntiles + 1, 1)
                     relvars = ['dec_%s' % j,'all']
                     deciles_agg['tot'] = scores_and_deciles[(scores_and_deciles.dataset_label == k) & (scores_and_deciles.model_label == self.model_labels[i])][relvars].groupby('dec_%s' % j).agg('sum')
                     scores_and_deciles['pos'] = scores_and_deciles.target_class == j
@@ -1114,7 +1129,7 @@ class modelplotpy(object):
         ------
         ValueError: If the wrong `scope` value is specified.
         """
-        deciles_aggregate = self.aggregate_over_deciles()
+        deciles_aggregate = self.aggregate_over_ntiles()
         deciles_aggregate['scope'] = scope
 
         if scope not in ('no_comparison', 'compare_models', 'compare_datasets', 'compare_targetclasses'):
