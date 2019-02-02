@@ -915,16 +915,16 @@ class modelplotpy(object):
             Containing the names of the different `feature_data` and `label_data` combination pairs.
         
         models : list of objects
-            Containing the sk-learn model objects
+            Containing the sk-learn model objects.
         
         model_labels : list of str
-            Names of the (sk-learn) models
+            Names of the (sk-learn) models.
         
         ntiles : int, default 10
-            The number of splits 10 is called deciles, 100 is called percentiles.
+            The number of splits 10 is called deciles, 100 is called percentiles and any other value is an ntile.
         
         seed : int, default 999
-            Make results reproducible, in the case of a small dataset the data cannot be split into 10 unique deciles.
+            Making the splits reproducible.
 
         Raises
         ------
@@ -957,16 +957,16 @@ class modelplotpy(object):
             Containing the names of the different feature `feature_data` and label `label_data` data combination pairs.
         
         models : list of objects
-            Containing the sk-learn model objects
+            Containing the sk-learn model objects.
         
         model_labels : list of str
-            Names of the (sk-learn) models
+            Names of the (sk-learn) models.
             
         ntiles : int, default 10
-            The number of splits 10 is called deciles, 100 is called percentiles.
-            
+            The number of splits 10 is called deciles, 100 is called percentiles and any other value is an ntile.
+        
         seed : int, default 999
-            Make results reproducible, in the case of a small dataset the data cannot be split into 10 unique deciles.
+            Making the splits reproducible.
 
         Returns
         -------
@@ -1031,16 +1031,16 @@ class modelplotpy(object):
             Containing the names of the different feature `feature_data` and label `label_data` data combination pairs.
         
         models : list of objects
-            Containing the sk-learn model objects
+            Containing the sk-learn model objects.
         
         model_labels : list of str
-            Names of the (sk-learn) models
+            Names of the (sk-learn) models.
             
         ntiles : int, default 10
-            The number of splits 10 is called deciles, 100 is called percentiles.
-            
+            The number of splits 10 is called deciles, 100 is called percentiles and any other value is an ntile.
+        
         seed : int, default 999
-            Make results reproducible, in the case of a small dataset the data cannot be split into 10 unique deciles.
+            Making the splits reproducible.
 
         Returns
         -------
