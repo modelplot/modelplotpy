@@ -96,7 +96,7 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
     if highlight_ntile != False:
         
         if highlight_ntile not in np.linspace(1, ntiles, num = ntiles).tolist():
-            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and 10')
+            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and %d' % (ntiles))
             
         if highlight_how not in ('plot','text','plot_text'):
             raise ValueError('Invalid highlight_how value, it must be one of the following: plot, text or plot_text.')
@@ -259,7 +259,7 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
     if highlight_ntile != False:
         
         if highlight_ntile not in np.linspace(1, ntiles, num = ntiles).tolist():
-            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and 10')
+            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and %d' % (ntiles))
             
         if highlight_how not in ('plot','text','plot_text'):
             raise ValueError('Invalid highlight_how value, it must be one of the following: plot, text or plot_text.')
@@ -424,7 +424,7 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
     if highlight_ntile != False:
         
         if highlight_ntile not in np.linspace(1, ntiles, num = ntiles).tolist():
-            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and 10')
+            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and %d' % (ntiles))
             
         if highlight_how not in ('plot','text','plot_text'):
             raise ValueError('Invalid highlight_how value, it must be one of the following: plot, text or plot_text.')
@@ -589,7 +589,7 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
     if highlight_ntile != False:
         
         if highlight_ntile not in np.linspace(1, ntiles, num = ntiles).tolist():
-            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and 10')
+            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and %d' % (ntiles))
             
         if highlight_how not in ('plot','text','plot_text'):
             raise ValueError('Invalid highlight_how value, it must be one of the following: plot, text or plot_text.')
