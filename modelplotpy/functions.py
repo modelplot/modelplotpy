@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 #from matplotlib.offsetbox import (TextArea, AnnotationBbox)
 
-def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight_decile = False, highlight_how = 'plot_text'):
+def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight_ntile = False, highlight_how = 'plot_text'):
     """ Plotting response curve
     
     Parameters
@@ -22,8 +22,8 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
         Specify the path and filetype to save the plot.
         If nothing specified, the plot will be saved as jpeg to the current working directory.
         
-    highlight_decile : int, default None
-        Highlight the value of the response curve at a specified decile value.
+    highlight_ntile : int, default None
+        Highlight the value of the response curve at a specified ntile value.
         
     highlight_how : str, plot_text default
         Highlight_how specifies where information about the model performance is printed. It can be shown as text, on the plot or both.
@@ -37,7 +37,7 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
         
     Raises
     ------
-    TypeError: If `highlight_decile` is not specified as an int.
+    TypeError: If `highlight_ntile` is not specified as an int.
     ValueError: If the wrong `highlight_how` value is specified.
     """
     
@@ -45,11 +45,18 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
     datasets = plot_input.dataset_label.unique().tolist()
     classes  = plot_input.target_class.unique().tolist()
     scope = plot_input.scope.unique()[0]
-    ntiles = plot_input.decile.nunique() - 1
+    ntiles = plot_input.ntile.nunique() - 1
     colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
     
+    if ntiles == 10:
+        description_label = 'decile'
+    elif ntiles == 100:
+        description_label = 'percentile'
+    else:
+        description_label = 'ntile'
+    
     fig, ax = plt.subplots(figsize = (12,7))
-    ax.set_xlabel("decile")
+    ax.set_xlabel(description_label)
     ax.set_ylabel("response")
     plt.suptitle('Response', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
@@ -64,32 +71,32 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
     
     if scope == "no_comparison":
         ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
-        ax.plot(plot_input.decile, plot_input.pct, label = classes[0], color = colors[0])
-        ax.plot(plot_input.decile, plot_input.pct_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
+        ax.plot(plot_input.ntile, plot_input.pct, label = classes[0], color = colors[0])
+        ax.plot(plot_input.ntile, plot_input.pct_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     elif scope == "compare_datasets":
         for col, i in enumerate(datasets):
-            ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.pct[plot_input.dataset_label == i], label = i, color = colors[col])
-            ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.pct_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.pct[plot_input.dataset_label == i], label = i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.pct_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
         ax.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     elif scope == "compare_models":
         for col, i in enumerate(models):
-            ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.pct[plot_input.model_label == i], label = i, color = colors[col])
-            ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.pct_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.model_label == i], plot_input.pct[plot_input.model_label == i], label = i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.model_label == i], plot_input.pct_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
         ax.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     else: #compare_targetclasses
         for col, i in enumerate(classes):
-            ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.pct[plot_input.target_class == i], label = i, color = colors[col])
-            ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.pct_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.pct[plot_input.target_class == i], label = i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.pct_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
         ax.set_title("Scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     
-    if highlight_decile != False:
+    if highlight_ntile != False:
         
-        if highlight_decile not in np.linspace(1, ntiles, num = ntiles).tolist():
-            raise TypeError('Invalid value for highlight_decile parameter. It must be an int value between 1 and 10')
+        if highlight_ntile not in np.linspace(1, ntiles, num = ntiles).tolist():
+            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and %d' % (ntiles))
             
         if highlight_how not in ('plot','text','plot_text'):
             raise ValueError('Invalid highlight_how value, it must be one of the following: plot, text or plot_text.')
@@ -97,55 +104,55 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
         else:
             text = ''
             if scope == "no_comparison":
-                cumpct = plot_input.loc[plot_input.decile == highlight_decile, 'pct'].tolist()
-                plt.plot([1, highlight_decile], [cumpct[0]] * 2, linestyle = '-.', color = colors[0], lw = 1.5)
-                plt.plot([highlight_decile] * 2 , [0] + [cumpct[0]], linestyle = '-.', color = colors[0], lw = 1.5)
-                xy = tuple([highlight_decile] + [cumpct[0]])
+                cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, 'pct'].tolist()
+                plt.plot([1, highlight_ntile], [cumpct[0]] * 2, linestyle = '-.', color = colors[0], lw = 1.5)
+                plt.plot([highlight_ntile] * 2 , [0] + [cumpct[0]], linestyle = '-.', color = colors[0], lw = 1.5)
+                xy = tuple([highlight_ntile] + [cumpct[0]])
                 ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[0])
                 ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                          textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
                          bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[0]), #fc = 'yellow', alpha = 0.3),
                          arrowprops = dict(arrowstyle = '->', color = 'black'))
-                text += 'When we select decile %d from model %s in dataset %s the percentage of %s cases in the selection is %d' % (highlight_decile, models[0], datasets[0], classes[0], int(cumpct[0] * 100)) + '%.\n'
+                text += 'When we select %s %d from model %s in dataset %s the percentage of %s cases in the selection is %d' % (description_label, highlight_ntile, models[0], datasets[0], classes[0], int(cumpct[0] * 100)) + '%.\n'
             elif scope == "compare_datasets":
                 for col, i in enumerate(datasets):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['dataset_label', 'pct']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['dataset_label', 'pct']]
                     cumpct = cumpct.pct[cumpct.dataset_label == i].tolist()
-                    plt.plot([1, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select decile %d from model %s in dataset %s the percentage of %s cases in the selection is %d' % (highlight_decile, models[0], datasets[col], classes[0], int(cumpct[0] * 100)) + '%.\n'
+                    text += 'When we select %s %d from model %s in dataset %s the percentage of %s cases in the selection is %d' % (description_label, highlight_ntile, models[0], datasets[col], classes[0], int(cumpct[0] * 100)) + '%.\n'
             elif scope == "compare_models":
                 for col, i in enumerate(models):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['model_label', 'pct']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['model_label', 'pct']]
                     cumpct = cumpct.pct[cumpct.model_label == i].tolist()
-                    plt.plot([1, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select decile %d from model %s in dataset %s the percentage of %s cases in the selection is %d' % (highlight_decile, models[col], datasets[0], classes[0], int(cumpct[0] * 100)) + '%.\n'
+                    text += 'When we select %s %d from model %s in dataset %s the percentage of %s cases in the selection is %d' % (description_label, highlight_ntile, models[col], datasets[0], classes[0], int(cumpct[0] * 100)) + '%.\n'
             else: # compare targetvalues
                 for col, i in enumerate(classes):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['target_class', 'pct']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['target_class', 'pct']]
                     cumpct = cumpct.pct[cumpct.target_class == i].tolist()
-                    plt.plot([1, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select decile %d from model %s in dataset %s the percentage of %s cases in the selection is %d' % (highlight_decile, models[0], datasets[0], classes[col], int(cumpct[0] * 100)) + '%.\n'
+                    text += 'When we select %s %d from model %s in dataset %s the percentage of %s cases in the selection is %d' % (description_label, highlight_ntile, models[0], datasets[0], classes[col], int(cumpct[0] * 100)) + '%.\n'
             if highlight_how in ('text', 'plot_text'):
                 print(text[:-1])
             if highlight_how in ('plot', 'plot_text'):
@@ -164,7 +171,7 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
     plt.show()
     return ax
 
-def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highlight_decile = False, highlight_how = 'plot_text'):
+def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highlight_ntile = False, highlight_how = 'plot_text'):
     """ Plotting cumulative response curve
     
     Parameters
@@ -179,8 +186,8 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
         Specify the path and filetype to save the plot.
         If nothing specified, the plot will be saved as jpeg to the current working directory.
 
-    highlight_decile : int, default None
-        Highlight the value of the response curve at a specified decile value.
+    highlight_ntile : int, default None
+        Highlight the value of the response curve at a specified ntile value.
 
     highlight_how : str, plot_text default
         Highlight_how specifies where information about the model performance is printed. It can be shown as text, on the plot or both.
@@ -194,18 +201,25 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
         
     Raises
     ------
-    TypeError: If `highlight_decile` is not specified as an int.
+    TypeError: If `highlight_ntile` is not specified as an int.
     ValueError: If the wrong `highlight_how` value is specified.
     """
     models   = plot_input.model_label.unique().tolist()
     datasets = plot_input.dataset_label.unique().tolist()
     classes  = plot_input.target_class.unique().tolist()
     scope = plot_input.scope.unique()[0]
-    ntiles = plot_input.decile.nunique() - 1
+    ntiles = plot_input.ntile.nunique() - 1
     colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
     
+    if ntiles == 10:
+        description_label = 'decile'
+    elif ntiles == 100:
+        description_label = 'percentile'
+    else:
+        description_label = 'ntile'
+    
     fig, ax = plt.subplots(figsize = (12,7))
-    ax.set_xlabel("decile")
+    ax.set_xlabel(description_label)
     ax.set_ylabel("cumulative response")
     plt.suptitle('Cumulative response', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
@@ -220,32 +234,32 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
     
     if scope == "no_comparison":
         ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
-        ax.plot(plot_input.decile, plot_input.cumpct, label = classes[0], color = colors[0])
-        ax.plot(plot_input.decile, plot_input.pct_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
+        ax.plot(plot_input.ntile, plot_input.cumpct, label = classes[0], color = colors[0])
+        ax.plot(plot_input.ntile, plot_input.pct_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     elif scope == "compare_datasets":
         for col, i in enumerate(datasets):
-            ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.cumpct[plot_input.dataset_label == i], label = i, color = colors[col])
-            ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.pct_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.cumpct[plot_input.dataset_label == i], label = i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.pct_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
         ax.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     elif scope == "compare_models":
         for col, i in enumerate(models):
-            ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.cumpct[plot_input.model_label == i], label = i, color = colors[col])
-            ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.pct_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.model_label == i], plot_input.cumpct[plot_input.model_label == i], label = i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.model_label == i], plot_input.pct_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
         ax.set_title("Scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     else: #compare_targetclasses
         for col, i in enumerate(classes):
-            ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.cumpct[plot_input.target_class == i], label = i, color = colors[col])
-            ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.pct_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.cumpct[plot_input.target_class == i], label = i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.pct_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
         ax.set_title("Comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     
-    if highlight_decile != False:
+    if highlight_ntile != False:
         
-        if highlight_decile not in np.linspace(1, ntiles, num = ntiles).tolist():
-            raise TypeError('Invalid value for highlight_decile parameter. It must be an int value between 1 and 10')
+        if highlight_ntile not in np.linspace(1, ntiles, num = ntiles).tolist():
+            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and %d' % (ntiles))
             
         if highlight_how not in ('plot','text','plot_text'):
             raise ValueError('Invalid highlight_how value, it must be one of the following: plot, text or plot_text.')
@@ -253,55 +267,55 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
         else:
             text = ''
             if scope == "no_comparison":
-                cumpct = plot_input.loc[plot_input.decile == highlight_decile, 'cumpct'].tolist()
-                plt.plot([1, highlight_decile], [cumpct[0]] * 2, linestyle = '-.', color = colors[0], lw = 1.5)
-                plt.plot([highlight_decile] * 2 , [0] + [cumpct[0]], linestyle = '-.', color = colors[0], lw = 1.5)
-                xy = tuple([highlight_decile] + [cumpct[0]])
+                cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, 'cumpct'].tolist()
+                plt.plot([1, highlight_ntile], [cumpct[0]] * 2, linestyle = '-.', color = colors[0], lw = 1.5)
+                plt.plot([highlight_ntile] * 2 , [0] + [cumpct[0]], linestyle = '-.', color = colors[0], lw = 1.5)
+                xy = tuple([highlight_ntile] + [cumpct[0]])
                 ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[0])
                 ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                          textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                          bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[0]),
                          arrowprops = dict(arrowstyle = '->', color = 'black'))
-                text += 'When we select deciles 1 until %d according to model %s in dataset %s the percentage of %s cases in the selection is %d' % (highlight_decile, models[0], datasets[0], classes[0], int(cumpct[0] * 100)) + '%.\n'
+                text += 'When we select %ss 1 until %d according to model %s in dataset %s the percentage of %s cases in the selection is %d' % (description_label, highlight_ntile, models[0], datasets[0], classes[0], int(cumpct[0] * 100)) + '%.\n'
             elif scope == "compare_datasets":
                 for col, i in enumerate(datasets):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['dataset_label', 'cumpct']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['dataset_label', 'cumpct']]
                     cumpct = cumpct.cumpct[cumpct.dataset_label == i].tolist()
-                    plt.plot([1, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[col]),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select deciles 1 until %d according to model %s in dataset %s the percentage of %s cases in the selection is %d' % (highlight_decile, models[0], datasets[col], classes[0], int(cumpct[0] * 100)) + '%.\n'
+                    text += 'When we select %ss 1 until %d according to model %s in dataset %s the percentage of %s cases in the selection is %d' % (description_label, highlight_ntile, models[0], datasets[col], classes[0], int(cumpct[0] * 100)) + '%.\n'
             elif scope == "compare_models":
                 for col, i in enumerate(models):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['model_label', 'cumpct']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['model_label', 'cumpct']]
                     cumpct = cumpct.cumpct[cumpct.model_label == i].tolist()
-                    plt.plot([1, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[col]),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select deciles 1 until %d according to model %s in dataset %s the percentage of %s cases in the selection is %d' % (highlight_decile, models[col], datasets[0], classes[0], int(cumpct[0] * 100)) + '%.\n'
+                    text += 'When we select %ss 1 until %d according to model %s in dataset %s the percentage of %s cases in the selection is %d' % (description_label, highlight_ntile, models[col], datasets[0], classes[0], int(cumpct[0] * 100)) + '%.\n'
             else: # compare targetvalues
                 for col, i in enumerate(classes):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['target_class', 'cumpct']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['target_class', 'cumpct']]
                     cumpct = cumpct.cumpct[cumpct.target_class == i].tolist()
-                    plt.plot([1, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[col]),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select deciles 1 until %d according to model %s in dataset %s the percentage of %s cases in the selection is %d' % (highlight_decile, models[0], datasets[0], classes[col], int(cumpct[0] * 100)) + '%.\n'
+                    text += 'When we select %ss 1 until %d according to model %s in dataset %s the percentage of %s cases in the selection is %d' % (description_label, highlight_ntile, models[0], datasets[0], classes[col], int(cumpct[0] * 100)) + '%.\n'
             
             if highlight_how in ('text', 'plot_text'):
                 print(text[:-1])
@@ -321,7 +335,7 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
     plt.show()
     return ax
 
-def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_decile = False, highlight_how = 'plot_text'):
+def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_ntile = False, highlight_how = 'plot_text'):
     """ Plotting cumulative lift curve
     
     Parameters
@@ -336,8 +350,8 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
         Specify the path and filetype to save the plot.
         If nothing specified, the plot will be saved as jpeg to the current working directory.
 
-    highlight_decile : int, default None
-        Highlight the value of the response curve at a specified decile value.
+    highlight_ntile : int, default None
+        Highlight the value of the response curve at a specified ntile value.
 
     highlight_how : str, plot_text default
         Highlight_how specifies where information about the model performance is printed. It can be shown as text, on the plot or both.
@@ -351,22 +365,29 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
         
     Raises
     ------
-    TypeError: If `highlight_decile` is not specified as an int.
+    TypeError: If `highlight_ntile` is not specified as an int.
     ValueError: If the wrong `highlight_how` value is specified.
     """
     models   = plot_input.model_label.unique().tolist()
     datasets = plot_input.dataset_label.unique().tolist()
     classes  = plot_input.target_class.unique().tolist()
     scope = plot_input.scope.unique()[0]
-    ntiles = plot_input.decile.nunique() - 1
+    ntiles = plot_input.ntile.nunique() - 1
     colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
-
+    
+    if ntiles == 10:
+        description_label = 'decile'
+    elif ntiles == 100:
+        description_label = 'percentile'
+    else:
+        description_label = 'ntile'
+      
     fig, ax = plt.subplots(figsize = (12,7))
-    ax.set_xlabel("decile")
+    ax.set_xlabel(description_label)
     ax.set_ylabel("cumulative lift")
     plt.suptitle('Cumulative lift', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax.set_xticks(np.arange(1, 11, 1))
+    ax.set_xticks(np.arange(1, ntiles + 1, 1))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
@@ -374,36 +395,36 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
     ax.grid(True)
     ax.set_xlim([1, ntiles])
     ax.set_ylim([0, max(plot_input.cumlift)])
-    ax.plot(list(range(1, ntiles, 1)), [1] * ntiles, linestyle = 'dashed', label = "no lift", color = 'grey')
+    ax.plot(list(range(1, ntiles + 1, 1)), [1] * ntiles, linestyle = 'dashed', label = "no lift", color = 'grey')
     
     if scope == "no_comparison":
         ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
-        ax.plot(plot_input.decile, plot_input.cumlift, label = classes[0], color = colors[0])
-        #ax.plot(plot_input.decile, plot_input.cumlift_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
+        ax.plot(plot_input.ntile, plot_input.cumlift, label = classes[0], color = colors[0])
+        #ax.plot(plot_input.ntile, plot_input.cumlift_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     elif scope == "compare_datasets":
         for col, i in enumerate(datasets):
-            ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.cumlift[plot_input.dataset_label == i], label = i, color = colors[col])
-            #ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.cumlift_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.cumlift[plot_input.dataset_label == i], label = i, color = colors[col])
+            #ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.cumlift_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
         ax.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     elif scope == "compare_models":
         for col, i in enumerate(models):
-            ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.cumlift[plot_input.model_label == i], label = i, color = colors[col])
-            #ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.cumlift_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.model_label == i], plot_input.cumlift[plot_input.model_label == i], label = i, color = colors[col])
+            #ax.plot(plot_input.ntile[plot_input.model_label == i], plot_input.cumlift_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
         ax.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     else: #compare_targetclasses
         for col, i in enumerate(classes):
-            ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.cumlift[plot_input.target_class == i], label = i, color = colors[col])
-            #ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.cumlift_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.cumlift[plot_input.target_class == i], label = i, color = colors[col])
+            #ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.cumlift_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
         ax.set_title("scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
         ax.legend(loc = 'upper right', shadow = False, frameon = False)
     
-    if highlight_decile != False:
+    if highlight_ntile != False:
         
-        if highlight_decile not in np.linspace(1, ntiles, num = ntiles).tolist():
-            raise TypeError('Invalid value for highlight_decile parameter. It must be an int value between 1 and 10')
+        if highlight_ntile not in np.linspace(1, ntiles, num = ntiles).tolist():
+            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and %d' % (ntiles))
             
         if highlight_how not in ('plot','text','plot_text'):
             raise ValueError('Invalid highlight_how value, it must be one of the following: plot, text or plot_text.')
@@ -411,55 +432,55 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
         else:
             text = ''
             if scope == "no_comparison":
-                cumpct = plot_input.loc[plot_input.decile == highlight_decile, 'cumlift'].tolist()
-                plt.plot([1, highlight_decile], [cumpct[0]] * 2, linestyle = '-.', color = colors[0], lw = 1.5)
-                plt.plot([highlight_decile] * 2 , [0] + [cumpct[0]], linestyle = '-.', color = colors[0], lw = 1.5)
-                xy = tuple([highlight_decile] + [cumpct[0]])
+                cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, 'cumlift'].tolist()
+                plt.plot([1, highlight_ntile], [cumpct[0]] * 2, linestyle = '-.', color = colors[0], lw = 1.5)
+                plt.plot([highlight_ntile] * 2 , [0] + [cumpct[0]], linestyle = '-.', color = colors[0], lw = 1.5)
+                xy = tuple([highlight_ntile] + [cumpct[0]])
                 ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[0])
                 ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                          textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                          bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[0]),
                          arrowprops = dict(arrowstyle = '->', color = 'black'))
-                text += 'When we select %d' % (highlight_decile * 10) + '%' + ' with the highest probability according to model %s in dataset %s, this selection for target class %s is %s times than selecting without a model.\n' % (models[0], datasets[0], classes[0], str(round(cumpct[0], 2)))
+                text += 'When we select %d' % int((float(highlight_ntile) / ntiles) * 100) + '%' + ' with the highest probability according to model %s in dataset %s, this selection for target class %s is %s times than selecting without a model.\n' % (models[0], datasets[0], classes[0], str(round(cumpct[0], 2)))
             elif scope == "compare_datasets":
                 for col, i in enumerate(datasets):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['dataset_label', 'cumlift']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['dataset_label', 'cumlift']]
                     cumpct = cumpct.cumlift[cumpct.dataset_label == i].tolist()
-                    plt.plot([1, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[col]),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select %d' % (highlight_decile * 10) + '%' + ' with the highest probability according to model %s in dataset %s, this selection for target class %s is %s times than selecting without a model.\n' % (models[0], datasets[col], classes[0], str(round(cumpct[0], 2)))
+                    text += 'When we select %d' % int((float(highlight_ntile) / ntiles) * 100) + '%' + ' with the highest probability according to model %s in dataset %s, this selection for target class %s is %s times than selecting without a model.\n' % (models[0], datasets[col], classes[0], str(round(cumpct[0], 2)))
             elif scope == "compare_models":
                 for col, i in enumerate(models):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['model_label', 'cumlift']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['model_label', 'cumlift']]
                     cumpct = cumpct.cumlift[cumpct.model_label == i].tolist()
-                    plt.plot([1, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[col]),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select %d' % (highlight_decile * 10) + '%' + ' with the highest probability according to model %s in dataset %s, this selection for target class %s is %s times than selecting without a model.\n' % (models[col], datasets[0], classes[0], str(round(cumpct[0], 2)))
+                    text += 'When we select %d' % int((float(highlight_ntile) / ntiles) * 100) + '%' + ' with the highest probability according to model %s in dataset %s, this selection for target class %s is %s times than selecting without a model.\n' % (models[col], datasets[0], classes[0], str(round(cumpct[0], 2)))
             else: # compare targetvalues
                 for col, i in enumerate(classes):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['target_class', 'cumlift']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['target_class', 'cumlift']]
                     cumpct = cumpct.cumlift[cumpct.target_class == i].tolist()
-                    plt.plot([1, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[col]),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select %d' % (highlight_decile * 10) + '%' + ' with the highest probability according to model %s in dataset %s, this selection for target class %s is %s times than selecting without a model.\n' % (models[0], datasets[0], classes[col], str(round(cumpct[0], 2)))
+                    text += 'When we select %d' % int((float(highlight_ntile) / ntiles) * 100) + '%' + ' with the highest probability according to model %s in dataset %s, this selection for target class %s is %s times than selecting without a model.\n' % (models[0], datasets[0], classes[col], str(round(cumpct[0], 2)))
             
             if highlight_how in ('text', 'plot_text'):
                 print(text[:-1])
@@ -479,7 +500,7 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
     plt.show()
     return ax
 
-def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight_decile = False, highlight_how = 'plot_text'):
+def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight_ntile = False, highlight_how = 'plot_text'):
     """ Plotting cumulative gains curve
     
     Parameters
@@ -494,8 +515,8 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
         Specify the path and filetype to save the plot.
         If nothing specified, the plot will be saved as jpeg to the current working directory.
 
-    highlight_decile : int, default None
-        Highlight the value of the response curve at a specified decile value.
+    highlight_ntile : int, default None
+        Highlight the value of the response curve at a specified ntile value.
     
     highlight_how : str, plot_text default
         Highlight_how specifies where information about the model performance is printed. It can be shown as text, on the plot or both.
@@ -509,18 +530,25 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
         
     Raises
     ------
-    TypeError: If `highlight_decile` is not specified as an int.
+    TypeError: If `highlight_ntile` is not specified as an int.
     ValueError: If the wrong `highlight_how` value is specified.
     """
     models   = plot_input.model_label.unique().tolist()
     datasets = plot_input.dataset_label.unique().tolist()
     classes  = plot_input.target_class.unique().tolist()
     scope = plot_input.scope.unique()[0]
-    ntiles = plot_input.decile.nunique() - 1
+    ntiles = plot_input.ntile.nunique() - 1
     colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
     
+    if ntiles == 10:
+        description_label = 'decile'
+    elif ntiles == 100:
+        description_label = 'percentile'
+    else:
+        description_label = 'ntile'
+    
     fig, ax = plt.subplots(figsize = (12,7))
-    ax.set_xlabel("decile")
+    ax.set_xlabel(description_label)
     ax.set_ylabel("cumulative gains")
     plt.suptitle('Cumulative gains', fontsize = 16)
     ax.set_xticks(np.arange(0, ntiles + 1, 1))
@@ -529,39 +557,39 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
     ax.xaxis.set_ticks_position('bottom')
-    ax.plot(list(range(0, ntiles + 1, 1)), np.linspace(0, 1, num = ntiles + 1).tolist(), linestyle = 'dashed', label = "minimal gains", color = 'grey')
+    #ax.plot(list(range(0, ntiles + 1, 1)), np.linspace(0, 1, num = ntiles + 1).tolist(), linestyle = 'dashed', label = "minimal gains", color = 'grey')    
     ax.grid(True)
     ax.set_xlim([0, ntiles])
     ax.set_ylim([0, 1])
     
     if scope == "no_comparison":
         ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
-        ax.plot(plot_input.decile, plot_input.cumgain, label = classes[0], color = colors[0])
-        ax.plot(plot_input.decile, plot_input.gain_opt, linestyle = 'dashed', label = "optimal gains (%s)" % classes[0], color = colors[0], linewidth = 1.5)
+        ax.plot(plot_input.ntile, plot_input.cumgain, label = classes[0], color = colors[0])
+        ax.plot(plot_input.ntile, plot_input.gain_opt, linestyle = 'dashed', label = "optimal gains (%s)" % classes[0], color = colors[0], linewidth = 1.5)
         ax.legend(loc = 'lower right', shadow = False, frameon = False)
     elif scope == "compare_datasets":
         for col, i in enumerate(datasets):
-            ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.cumgain[plot_input.dataset_label == i], label = i, color = colors[col])
-            ax.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.gain_opt[plot_input.dataset_label == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col], linewidth = 1.5)
+            ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.cumgain[plot_input.dataset_label == i], label = i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.gain_opt[plot_input.dataset_label == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col], linewidth = 1.5)
         ax.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'lower right', shadow = False, frameon = False)
     elif scope == "compare_models":
         for col, i in enumerate(models):
-            ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.cumgain[plot_input.model_label == i], label = i, color = colors[col])
-            ax.plot(plot_input.decile[plot_input.model_label == i], plot_input.gain_opt[plot_input.model_label == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col], linewidth = 1.5)
+            ax.plot(plot_input.ntile[plot_input.model_label == i], plot_input.cumgain[plot_input.model_label == i], label = i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.model_label == i], plot_input.gain_opt[plot_input.model_label == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col], linewidth = 1.5)
         ax.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
         ax.legend(loc = 'lower right', shadow = False, frameon = False)
     else: #compare_targetclasses
         for col, i in enumerate(classes):
-            ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.cumgain[plot_input.target_class == i], label = i, color = colors[col])
-            ax.plot(plot_input.decile[plot_input.target_class == i], plot_input.gain_opt[plot_input.target_class == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col], linewidth = 1.5)
+            ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.cumgain[plot_input.target_class == i], label = i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.gain_opt[plot_input.target_class == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col], linewidth = 1.5)
         ax.set_title("scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
         ax.legend(loc = 'lower right', shadow = False, frameon = False)
     
-    if highlight_decile != False:
+    if highlight_ntile != False:
         
-        if highlight_decile not in np.linspace(1, ntiles, num = ntiles).tolist():
-            raise TypeError('Invalid value for highlight_decile parameter. It must be an int value between 1 and 10')
+        if highlight_ntile not in np.linspace(1, ntiles, num = ntiles).tolist():
+            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and %d' % (ntiles))
             
         if highlight_how not in ('plot','text','plot_text'):
             raise ValueError('Invalid highlight_how value, it must be one of the following: plot, text or plot_text.')
@@ -569,55 +597,55 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
         else:
             text = ''
             if scope == "no_comparison":
-                cumpct = plot_input.loc[plot_input.decile == highlight_decile, 'cumgain'].tolist()
-                plt.plot([0, highlight_decile], [cumpct[0]] * 2, linestyle = '-.', color = colors[0], lw = 1.5)
-                plt.plot([highlight_decile] * 2 , [0] + [cumpct[0]], linestyle = '-.', color = colors[0], lw = 1.5)
-                xy = tuple([highlight_decile] + [cumpct[0]])
+                cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, 'cumgain'].tolist()
+                plt.plot([0, highlight_ntile], [cumpct[0]] * 2, linestyle = '-.', color = colors[0], lw = 1.5)
+                plt.plot([highlight_ntile] * 2 , [0] + [cumpct[0]], linestyle = '-.', color = colors[0], lw = 1.5)
+                xy = tuple([highlight_ntile] + [cumpct[0]])
                 ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[0])
                 ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                          textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                          bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[0]),
                          arrowprops = dict(arrowstyle = '->', color = 'black'))
-                text += 'When we select %d' % (highlight_decile * 10) + '%' + ' with the highest probability according to model %s, this selection holds %d' % (models[0], int(cumpct[0] * 100)) + '%' + ' of all %s cases in dataset %s.\n'  % (classes[0], datasets[0])
+                text += 'When we select %d' % int((float(highlight_ntile) / ntiles) * 100) + '%' + ' with the highest probability according to model %s, this selection holds %d' % (models[0], int(cumpct[0] * 100)) + '%' + ' of all %s cases in dataset %s.\n'  % (classes[0], datasets[0])
             elif scope == "compare_datasets":
                 for col, i in enumerate(datasets):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['dataset_label', 'cumgain']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['dataset_label', 'cumgain']]
                     cumpct = cumpct.cumgain[cumpct.dataset_label == i].tolist()
-                    plt.plot([0, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([0, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[col]),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select %d' % (highlight_decile * 10) + '%' + ' with the highest probability according to model %s, this selection holds %d' % (models[0], int(cumpct[0] * 100)) + '%' + ' of all %s cases in dataset %s.\n'  % (classes[0], datasets[col])
+                    text += 'When we select %d' % int((float(highlight_ntile) / ntiles) * 100) + '%' + ' with the highest probability according to model %s, this selection holds %d' % (models[0], int(cumpct[0] * 100)) + '%' + ' of all %s cases in dataset %s.\n'  % (classes[0], datasets[col])
             elif scope == "compare_models":
                 for col, i in enumerate(models):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['model_label', 'cumgain']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['model_label', 'cumgain']]
                     cumpct = cumpct.cumgain[cumpct.model_label == i].tolist()
-                    plt.plot([0, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([0, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[col]),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select %d' % (highlight_decile * 10) + '%' + ' with the highest probability according to model %s, this selection holds %d' % (models[col], int(cumpct[0] * 100)) + '%' + ' of all %s cases in dataset %s.\n'  % (classes[0], datasets[0])
+                    text += 'When we select %d' % int((float(highlight_ntile) / ntiles) * 100) + '%' + ' with the highest probability according to model %s, this selection holds %d' % (models[col], int(cumpct[0] * 100)) + '%' + ' of all %s cases in dataset %s.\n'  % (classes[0], datasets[0])
             else: # compare targetvalues
                 for col, i in enumerate(classes):
-                    cumpct = plot_input.loc[plot_input.decile == highlight_decile, ['target_class', 'cumgain']]
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['target_class', 'cumgain']]
                     cumpct = cumpct.cumgain[cumpct.target_class == i].tolist()
-                    plt.plot([0, highlight_decile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
-                    plt.plot([highlight_decile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
-                    xy = tuple([highlight_decile] + cumpct)
+                    plt.plot([0, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
                     ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
                     ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
                              textcoords = 'offset points', ha = 'center', va = 'bottom', color = 'black',
                              bbox = dict(boxstyle = 'round, pad = 0.4', alpha = 1, fc = colors[col]),
                              arrowprops = dict(arrowstyle = '->', color = 'black'))
-                    text += 'When we select %d' % (highlight_decile * 10) + '%' + ' with the highest probability according to model %s, this selection holds %d' % (models[0], int(cumpct[0] * 100)) + '%' + ' of all %s cases in dataset %s.\n'  % (classes[col], datasets[0])
+                    text += 'When we select %d' % int((float(highlight_ntile) / ntiles) * 100) + '%' + ' with the highest probability according to model %s, this selection holds %d' % (models[0], int(cumpct[0] * 100)) + '%' + ' of all %s cases in dataset %s.\n'  % (classes[col], datasets[0])
             
             if highlight_how in ('text', 'plot_text'):
                 print(text[:-1])
@@ -663,9 +691,16 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     datasets = plot_input.dataset_label.unique().tolist()
     classes  = plot_input.target_class.unique().tolist()
     scope = plot_input.scope.unique()[0]
-    ntiles = plot_input.decile.nunique() - 1
+    ntiles = plot_input.ntile.nunique() - 1
     colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
 
+    if ntiles == 10:
+        description_label = 'decile'
+    elif ntiles == 100:
+        description_label = 'percentile'
+    else:
+        description_label = 'ntile'
+    
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex = False, sharey = False, figsize = (15,10))
     ax1.set_title('Cumulative gains', fontweight='bold')
     ax1.set_ylabel('cumulative gains')
@@ -698,7 +733,7 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
 
     ax3.set_title('Response', fontweight='bold')
     ax3.set_ylabel('response')
-    ax3.set_xlabel('decile')
+    ax3.set_xlabel(description_label)
     ax3.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     ax3.set_xticks(np.arange(1, ntiles + 1, 1))
     ax3.set_xlim(1, ntiles)
@@ -711,7 +746,7 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     
     ax4.set_title('Cumulative response', fontweight='bold')
     ax4.set_ylabel('cumulative response')
-    ax4.set_xlabel('decile')
+    ax4.set_xlabel(description_label)
     ax4.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     ax4.set_xticks(np.arange(1, ntiles + 1, 1))
     ax4.set_xlim(1, ntiles)
@@ -724,27 +759,27 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     
     if scope == "no_comparison":
         title = "model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0])
-        ax1.plot(plot_input.decile, plot_input.cumgain, label = classes[0], color = colors[0])
-        ax1.plot(plot_input.decile, plot_input.gain_opt, linestyle = 'dashed', label = "optimal gains (%s)" % classes[0], color = colors[0])
+        ax1.plot(plot_input.ntile, plot_input.cumgain, label = classes[0], color = colors[0])
+        ax1.plot(plot_input.ntile, plot_input.gain_opt, linestyle = 'dashed', label = "optimal gains (%s)" % classes[0], color = colors[0])
         ax1.legend(loc = 'lower right', shadow = False, frameon = False)
-        ax2.plot(plot_input.decile, plot_input.cumlift, label = classes[0], color = colors[0])
+        ax2.plot(plot_input.ntile, plot_input.cumlift, label = classes[0], color = colors[0])
         ax2.legend(loc = 'upper right', shadow = False, frameon = False)
-        ax3.plot(plot_input.decile, plot_input.pct, label = classes[0], color = colors[0])
-        ax3.plot(plot_input.decile, plot_input.pct_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
+        ax3.plot(plot_input.ntile, plot_input.pct, label = classes[0], color = colors[0])
+        ax3.plot(plot_input.ntile, plot_input.pct_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
         ax3.legend(loc = 'upper right', shadow = False, frameon = False)
-        ax4.plot(plot_input.decile, plot_input.cumpct, label = classes[0], color = colors[0])
-        ax4.plot(plot_input.decile, plot_input.pct_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
+        ax4.plot(plot_input.ntile, plot_input.cumpct, label = classes[0], color = colors[0])
+        ax4.plot(plot_input.ntile, plot_input.pct_ref, linestyle = 'dashed', label = "overall response (%s)" % classes[0], color = colors[0])
         ax4.legend(loc = 'upper right', shadow = False, frameon = False)
     elif scope == "compare_datasets":
         title = "scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0])
         for col, i in enumerate(datasets):
-            ax1.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.cumgain[plot_input.dataset_label == i], label = i, color = colors[col])
-            ax1.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.gain_opt[plot_input.dataset_label == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col])
-            ax2.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.cumlift[plot_input.dataset_label == i], label = i, color = colors[col])
-            ax3.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.pct[plot_input.dataset_label == i], label = i, color = colors[col])
-            ax3.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.pct_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-            ax4.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.cumpct[plot_input.dataset_label == i], label = i, color = colors[col])
-            ax4.plot(plot_input.decile[plot_input.dataset_label == i], plot_input.pct_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax1.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.cumgain[plot_input.dataset_label == i], label = i, color = colors[col])
+            ax1.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.gain_opt[plot_input.dataset_label == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col])
+            ax2.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.cumlift[plot_input.dataset_label == i], label = i, color = colors[col])
+            ax3.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.pct[plot_input.dataset_label == i], label = i, color = colors[col])
+            ax3.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.pct_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax4.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.cumpct[plot_input.dataset_label == i], label = i, color = colors[col])
+            ax4.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.pct_ref[plot_input.dataset_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
         ax1.legend(loc = 'lower right', shadow = False, frameon = False)
         ax2.legend(loc = 'upper right', shadow = False, frameon = False)
         ax3.legend(loc = 'upper right', shadow = False, frameon = False)
@@ -752,13 +787,13 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     elif scope == "compare_models":
         title = "scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0])
         for col, i in enumerate(models):
-            ax1.plot(plot_input.decile[plot_input.model_label == i], plot_input.cumgain[plot_input.model_label == i], label = i, color = colors[col])
-            ax1.plot(plot_input.decile[plot_input.model_label == i], plot_input.gain_opt[plot_input.model_label == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col])
-            ax2.plot(plot_input.decile[plot_input.model_label == i], plot_input.cumlift[plot_input.model_label == i], label = i, color = colors[col])
-            ax3.plot(plot_input.decile[plot_input.model_label == i], plot_input.pct[plot_input.model_label == i], label = i, color = colors[col])
-            ax3.plot(plot_input.decile[plot_input.model_label == i], plot_input.pct_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-            ax4.plot(plot_input.decile[plot_input.model_label == i], plot_input.cumpct[plot_input.model_label == i], label = i, color = colors[col])
-            ax4.plot(plot_input.decile[plot_input.model_label == i], plot_input.pct_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])            
+            ax1.plot(plot_input.ntile[plot_input.model_label == i], plot_input.cumgain[plot_input.model_label == i], label = i, color = colors[col])
+            ax1.plot(plot_input.ntile[plot_input.model_label == i], plot_input.gain_opt[plot_input.model_label == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col])
+            ax2.plot(plot_input.ntile[plot_input.model_label == i], plot_input.cumlift[plot_input.model_label == i], label = i, color = colors[col])
+            ax3.plot(plot_input.ntile[plot_input.model_label == i], plot_input.pct[plot_input.model_label == i], label = i, color = colors[col])
+            ax3.plot(plot_input.ntile[plot_input.model_label == i], plot_input.pct_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax4.plot(plot_input.ntile[plot_input.model_label == i], plot_input.cumpct[plot_input.model_label == i], label = i, color = colors[col])
+            ax4.plot(plot_input.ntile[plot_input.model_label == i], plot_input.pct_ref[plot_input.model_label == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])            
         ax1.legend(loc = 'lower right', shadow = False, frameon = False)
         ax2.legend(loc = 'upper right', shadow = False, frameon = False)
         ax3.legend(loc = 'upper right', shadow = False, frameon = False)
@@ -766,13 +801,13 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     else: #compare_targetclasses
         title = "scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0])
         for col, i in enumerate(classes):
-            ax1.plot(plot_input.decile[plot_input.target_class == i], plot_input.cumgain[plot_input.target_class == i], label = i, color = colors[col])
-            ax1.plot(plot_input.decile[plot_input.target_class == i], plot_input.gain_opt[plot_input.target_class == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col])
-            ax2.plot(plot_input.decile[plot_input.target_class == i], plot_input.cumlift[plot_input.target_class == i], label = i, color = colors[col])
-            ax3.plot(plot_input.decile[plot_input.target_class == i], plot_input.pct[plot_input.target_class == i], label = i, color = colors[col])
-            ax3.plot(plot_input.decile[plot_input.target_class == i], plot_input.pct_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
-            ax4.plot(plot_input.decile[plot_input.target_class == i], plot_input.cumpct[plot_input.target_class == i], label = i, color = colors[col])
-            ax4.plot(plot_input.decile[plot_input.target_class == i], plot_input.pct_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax1.plot(plot_input.ntile[plot_input.target_class == i], plot_input.cumgain[plot_input.target_class == i], label = i, color = colors[col])
+            ax1.plot(plot_input.ntile[plot_input.target_class == i], plot_input.gain_opt[plot_input.target_class == i], linestyle = 'dashed', label = "optimal gains (%s)" % i, color = colors[col])
+            ax2.plot(plot_input.ntile[plot_input.target_class == i], plot_input.cumlift[plot_input.target_class == i], label = i, color = colors[col])
+            ax3.plot(plot_input.ntile[plot_input.target_class == i], plot_input.pct[plot_input.target_class == i], label = i, color = colors[col])
+            ax3.plot(plot_input.ntile[plot_input.target_class == i], plot_input.pct_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
+            ax4.plot(plot_input.ntile[plot_input.target_class == i], plot_input.cumpct[plot_input.target_class == i], label = i, color = colors[col])
+            ax4.plot(plot_input.ntile[plot_input.target_class == i], plot_input.pct_ref[plot_input.target_class == i], linestyle = 'dashed', label = "overall response (%s)" % i, color = colors[col])
         ax1.legend(loc = 'lower right', shadow = False, frameon = False)
         ax2.legend(loc = 'upper right', shadow = False, frameon = False)
         ax3.legend(loc = 'upper right', shadow = False, frameon = False)
@@ -857,7 +892,7 @@ class modelplotpy(object):
         Names of the (sk-learn) models
 
     seed : int, default 999
-        Make results reproducible, in the case of a small dataset the data cannot be split into 10 unique deciles.
+        Make results reproducible, in the case of a small dataset the data cannot be split into unique ntiles.
 
     Raises
     ------
@@ -880,16 +915,16 @@ class modelplotpy(object):
             Containing the names of the different `feature_data` and `label_data` combination pairs.
         
         models : list of objects
-            Containing the sk-learn model objects
+            Containing the sk-learn model objects.
         
         model_labels : list of str
-            Names of the (sk-learn) models
+            Names of the (sk-learn) models.
         
         ntiles : int, default 10
-            The number of splits 10 is called deciles, 100 is called percentiles.
+            The number of splits 10 is called deciles, 100 is called percentiles and any other value is an ntile.
         
         seed : int, default 999
-            Make results reproducible, in the case of a small dataset the data cannot be split into 10 unique deciles.
+            Making the splits reproducible.
 
         Raises
         ------
@@ -922,21 +957,21 @@ class modelplotpy(object):
             Containing the names of the different feature `feature_data` and label `label_data` data combination pairs.
         
         models : list of objects
-            Containing the sk-learn model objects
+            Containing the sk-learn model objects.
         
         model_labels : list of str
-            Names of the (sk-learn) models
+            Names of the (sk-learn) models.
             
         ntiles : int, default 10
-            The number of splits 10 is called deciles, 100 is called percentiles.
-            
+            The number of splits 10 is called deciles, 100 is called percentiles and any other value is an ntile.
+        
         seed : int, default 999
-            Make results reproducible, in the case of a small dataset the data cannot be split into 10 unique deciles.
+            Making the splits reproducible.
 
         Returns
         -------
-        Pandas dataframe for all given information and for each target_class it makes a prediction and decile.
-        For each decile a small value (based on the seed) is added and normalized to make the results reproducible.
+        Pandas dataframe for all given information and for each target_class it makes a prediction and ntile.
+        For each ntile a small value (based on the seed) is added and normalized to make the results reproducible.
 
         Raises
         ------
@@ -996,16 +1031,16 @@ class modelplotpy(object):
             Containing the names of the different feature `feature_data` and label `label_data` data combination pairs.
         
         models : list of objects
-            Containing the sk-learn model objects
+            Containing the sk-learn model objects.
         
         model_labels : list of str
-            Names of the (sk-learn) models
+            Names of the (sk-learn) models.
             
         ntiles : int, default 10
-            The number of splits 10 is called deciles, 100 is called percentiles.
-            
+            The number of splits 10 is called deciles, 100 is called percentiles and any other value is an ntile.
+        
         seed : int, default 999
-            Make results reproducible, in the case of a small dataset the data cannot be split into 10 unique deciles.
+            Making the splits reproducible.
 
         Returns
         -------
@@ -1016,65 +1051,65 @@ class modelplotpy(object):
         ------
         ValueError: If there is no match with the complete list or the input list again.
         """
-        scores_and_deciles = self.prepare_scores_and_ntiles()
-        scores_and_deciles['all'] = 1
-        deciles_aggregate = pd.DataFrame()
+        scores_and_ntiles = self.prepare_scores_and_ntiles()
+        scores_and_ntiles['all'] = 1
+        ntiles_aggregate = pd.DataFrame()
         add_origin = pd.DataFrame()
         for i in range(len(self.model_labels)):
             for j in self.models[i].classes_:
                 for k in self.dataset_labels:
                     add_origin_add = pd.DataFrame({
-                        'model_label': self.model_labels[i], 'dataset_label': [k],  'target_class': [j], 'decile': [0], 
+                        'model_label': self.model_labels[i], 'dataset_label': [k],  'target_class': [j], 'ntile': [0], 
                         'tot': [0], 'pos': [0], 'neg': [0], 'pct': [0], 'postot': [0], 'negtot': [0], 
                         'tottot': [0], 'pcttot': [0], 'cumpos': [0], 'cumneg': [0], 'cumtot': [0], 'cumpct': [0], 
                         'gain': [0], 'cumgain': [0], 'gain_ref': [0], 'pct_ref': [0], 'gain_opt': [0], 
                         'lift': [0], 'cumlift': [0], 'cumlift_ref': [1]
                     })
-                    deciles_agg = []
-                    deciles_agg = pd.DataFrame(index=range(1, self.ntiles + 1))
-                    deciles_agg['model_label'] = self.model_labels[i]
-                    deciles_agg['dataset_label'] = k
-                    deciles_agg['target_class'] = j
-                    deciles_agg['decile'] = range(1, self.ntiles + 1, 1)
+                    ntiles_agg = []
+                    ntiles_agg = pd.DataFrame(index=range(1, self.ntiles + 1))
+                    ntiles_agg['model_label'] = self.model_labels[i]
+                    ntiles_agg['dataset_label'] = k
+                    ntiles_agg['target_class'] = j
+                    ntiles_agg['ntile'] = range(1, self.ntiles + 1, 1)
                     relvars = ['dec_%s' % j,'all']
-                    deciles_agg['tot'] = scores_and_deciles[(scores_and_deciles.dataset_label == k) & (scores_and_deciles.model_label == self.model_labels[i])][relvars].groupby('dec_%s' % j).agg('sum')
-                    scores_and_deciles['pos'] = scores_and_deciles.target_class == j
+                    ntiles_agg['tot'] = scores_and_ntiles[(scores_and_ntiles.dataset_label == k) & (scores_and_ntiles.model_label == self.model_labels[i])][relvars].groupby('dec_%s' % j).agg('sum')
+                    scores_and_ntiles['pos'] = scores_and_ntiles.target_class == j
                     relvars = ['dec_%s' % j, 'pos']
-                    deciles_agg['pos'] = scores_and_deciles[(scores_and_deciles.dataset_label == k) & (scores_and_deciles.model_label == self.model_labels[i])][relvars].groupby('dec_%s' % j).agg('sum')
-                    scores_and_deciles['neg'] = scores_and_deciles.target_class != j
+                    ntiles_agg['pos'] = scores_and_ntiles[(scores_and_ntiles.dataset_label == k) & (scores_and_ntiles.model_label == self.model_labels[i])][relvars].groupby('dec_%s' % j).agg('sum')
+                    scores_and_ntiles['neg'] = scores_and_ntiles.target_class != j
                     relvars = ['dec_%s' % j, 'neg']
-                    deciles_agg['neg'] = scores_and_deciles[(scores_and_deciles.dataset_label == k) & (scores_and_deciles.model_label == self.model_labels[i])][relvars].groupby('dec_%s' % j).agg('sum')
-                    deciles_agg['pct'] = deciles_agg.pos / deciles_agg.tot
-                    deciles_agg['postot'] = deciles_agg.pos.sum()
-                    deciles_agg['negtot'] = deciles_agg.neg.sum()
-                    deciles_agg['tottot'] = deciles_agg.tot.sum()
-                    deciles_agg['pcttot'] = deciles_agg.pct.sum()
-                    deciles_agg['cumpos'] = deciles_agg.pos.cumsum()
-                    deciles_agg['cumneg'] = deciles_agg.neg.cumsum()
-                    deciles_agg['cumtot'] = deciles_agg.tot.cumsum()
-                    deciles_agg['cumpct'] = deciles_agg.cumpos / deciles_agg.cumtot
-                    deciles_agg['gain'] = deciles_agg.pos / deciles_agg.postot
-                    deciles_agg['cumgain'] = deciles_agg.cumpos / deciles_agg.postot
-                    deciles_agg['gain_ref'] = deciles_agg.decile / 10
-                    deciles_agg['pct_ref'] = deciles_agg.postot / deciles_agg.tottot
-                    deciles_agg['gain_opt'] = 1.0
-                    deciles_agg.loc[(deciles_agg.cumtot / deciles_agg.postot) <= 1.0, 'gain_opt'] = (deciles_agg.cumtot / deciles_agg.postot)
-                    deciles_agg['lift'] = deciles_agg.pct / (deciles_agg.postot / deciles_agg.tottot)
-                    deciles_agg['cumlift'] = deciles_agg.cumpct / (deciles_agg.postot / deciles_agg.tottot)
-                    deciles_agg['cumlift_ref'] = 1
+                    ntiles_agg['neg'] = scores_and_ntiles[(scores_and_ntiles.dataset_label == k) & (scores_and_ntiles.model_label == self.model_labels[i])][relvars].groupby('dec_%s' % j).agg('sum')
+                    ntiles_agg['pct'] = ntiles_agg.pos / ntiles_agg.tot
+                    ntiles_agg['postot'] = ntiles_agg.pos.sum()
+                    ntiles_agg['negtot'] = ntiles_agg.neg.sum()
+                    ntiles_agg['tottot'] = ntiles_agg.tot.sum()
+                    ntiles_agg['pcttot'] = ntiles_agg.pct.sum()
+                    ntiles_agg['cumpos'] = ntiles_agg.pos.cumsum()
+                    ntiles_agg['cumneg'] = ntiles_agg.neg.cumsum()
+                    ntiles_agg['cumtot'] = ntiles_agg.tot.cumsum()
+                    ntiles_agg['cumpct'] = ntiles_agg.cumpos / ntiles_agg.cumtot
+                    ntiles_agg['gain'] = ntiles_agg.pos / ntiles_agg.postot
+                    ntiles_agg['cumgain'] = ntiles_agg.cumpos / ntiles_agg.postot
+                    ntiles_agg['gain_ref'] = ntiles_agg.ntile / self.ntiles
+                    ntiles_agg['pct_ref'] = ntiles_agg.postot / ntiles_agg.tottot
+                    ntiles_agg['gain_opt'] = 1.0
+                    ntiles_agg.loc[(ntiles_agg.cumtot / ntiles_agg.postot) <= 1.0, 'gain_opt'] = (ntiles_agg.cumtot / ntiles_agg.postot)
+                    ntiles_agg['lift'] = ntiles_agg.pct / (ntiles_agg.postot / ntiles_agg.tottot)
+                    ntiles_agg['cumlift'] = ntiles_agg.cumpct / (ntiles_agg.postot / ntiles_agg.tottot)
+                    ntiles_agg['cumlift_ref'] = 1
 
-                    deciles_aggregate = deciles_aggregate.append(deciles_agg, ignore_index = True)
+                    ntiles_aggregate = ntiles_aggregate.append(ntiles_agg, ignore_index = True)
                     add_origin = pd.concat([add_origin, add_origin_add], axis = 0)
 
-        deciles_aggregate = pd.concat([add_origin, deciles_aggregate], axis = 0).sort_values(by=['model_label', 'dataset_label', 'target_class', 'decile'])
-        cols = deciles_aggregate.columns
-        return deciles_aggregate[cols]
+        ntiles_aggregate = pd.concat([add_origin, ntiles_aggregate], axis = 0).sort_values(by=['model_label', 'dataset_label', 'target_class', 'ntile'])
+        cols = ntiles_aggregate.columns
+        return ntiles_aggregate[cols]
     
     def plotting_scope(self, scope = 'no_comparison', select_model_label = [], select_dataset_label = [], select_targetclass = [], select_smallest_targetclass = True):
         """ Create plot_input
         
-        This function builds the pandas dataframe plot_input wich is a subset of scores_and_deciles.
-        The dataset is the subset of scores_and_deciles that is dependent of 1 of the 4 evaluation types that a user can request.
+        This function builds the pandas dataframe plot_input wich is a subset of scores_and_ntiles.
+        The dataset is the subset of scores_and_ntiles that is dependent of 1 of the 4 evaluation types that a user can request.
         
         How is this function evaluated?
         There are 4 different perspectives to evaluate model plots.
@@ -1122,15 +1157,15 @@ class modelplotpy(object):
 
         Returns
         -------
-        Pandas dataframe, a subset of scores_and_deciles, for all dataset, model and target value combinations for deciles 1 tot 10.
+        Pandas dataframe, a subset of scores_and_ntiles, for all dataset, model and target value combinations for deciles 1 tot 10.
         It contains all necessary information for model plotting.
 
         Raises
         ------
         ValueError: If the wrong `scope` value is specified.
         """
-        deciles_aggregate = self.aggregate_over_ntiles()
-        deciles_aggregate['scope'] = scope
+        ntiles_aggregate = self.aggregate_over_ntiles()
+        ntiles_aggregate['scope'] = scope
 
         if scope not in ('no_comparison', 'compare_models', 'compare_datasets', 'compare_targetclasses'):
             raise ValueError('Invalid scope value, it must be one of the following: no_comparison, compare_models, compare_datasets or compare_targetclasses.')
@@ -1157,10 +1192,10 @@ class modelplotpy(object):
                 print("The label with smallest class is %s" % select_targetclass[0])
             else:
                 select_targetvalue = list(self.models[1].classes_)
-            plot_input = deciles_aggregate[
-                (deciles_aggregate.model_label == select_model_label[0]) & 
-                (deciles_aggregate.dataset_label == select_dataset_label[0]) & 
-                (deciles_aggregate.target_class == select_targetclass[0])]
+            plot_input = ntiles_aggregate[
+                (ntiles_aggregate.model_label == select_model_label[0]) & 
+                (ntiles_aggregate.dataset_label == select_dataset_label[0]) & 
+                (ntiles_aggregate.target_class == select_targetclass[0])]
             print('Target class %s, dataset %s and model %s.' % (select_targetclass[0], select_dataset_label[0], select_model_label[0]))
         elif scope == 'compare_models':
             print('compare models')
@@ -1179,10 +1214,10 @@ class modelplotpy(object):
                 print("The label with smallest class is %s" % select_targetclass)
             else:
                 select_targetclass = list(self.models[1].classes_)
-            plot_input = deciles_aggregate[
-                (deciles_aggregate.model_label.isin(select_model_label)) &
-                (deciles_aggregate.dataset_label == select_dataset_label[0]) &
-                (deciles_aggregate.target_class == select_targetclass[0])]
+            plot_input = ntiles_aggregate[
+                (ntiles_aggregate.model_label.isin(select_model_label)) &
+                (ntiles_aggregate.dataset_label == select_dataset_label[0]) &
+                (ntiles_aggregate.target_class == select_targetclass[0])]
         elif scope == 'compare_datasets':
             print('compare datasets')
             if len(select_model_label) >= 1:
@@ -1200,10 +1235,10 @@ class modelplotpy(object):
                 print("The label with smallest class is %s" % select_targetclass)
             else:
                 select_targetclass = list(self.models[1].classes_)
-            plot_input = deciles_aggregate[
-                (deciles_aggregate.model_label == select_model_label[0]) &
-                (deciles_aggregate.dataset_label.isin(select_dataset_label)) &
-                (deciles_aggregate.target_class == select_targetclass[0])]
+            plot_input = ntiles_aggregate[
+                (ntiles_aggregate.model_label == select_model_label[0]) &
+                (ntiles_aggregate.dataset_label.isin(select_dataset_label)) &
+                (ntiles_aggregate.target_class == select_targetclass[0])]
         else: # scope == 'compare_targetclasses'
             print('compare target classes')
             if len(select_model_label) >= 1:
@@ -1218,8 +1253,8 @@ class modelplotpy(object):
                 select_targetclass = select_targetclass
             else:
                 select_targetclass = list(self.models[1].classes_)
-            plot_input = deciles_aggregate[
-                (deciles_aggregate.model_label == select_model_label[0]) &
-                (deciles_aggregate.dataset_label == select_dataset_label[0]) &
-                (deciles_aggregate.target_class.isin(select_targetclass))]
+            plot_input = ntiles_aggregate[
+                (ntiles_aggregate.model_label == select_model_label[0]) &
+                (ntiles_aggregate.dataset_label == select_dataset_label[0]) &
+                (ntiles_aggregate.target_class.isin(select_targetclass))]
         return plot_input
