@@ -54,13 +54,20 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
         description_label = 'percentile'
     else:
         description_label = 'ntile'
-    
+
+    if ntiles <= 20:
+        xlabper = 1
+    elif ntiles <= 40:
+        xlabper = 2
+    else:
+        xlabper = 5
+
     fig, ax = plt.subplots(figsize = (12,7))
     ax.set_xlabel(description_label)
     ax.set_ylabel("response")
     plt.suptitle('Response', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax.set_xticks(np.arange(1, ntiles + 1, 1))
+    ax.set_xticks(np.arange(0, ntiles + 1, xlabper))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
@@ -218,12 +225,19 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
     else:
         description_label = 'ntile'
     
+    if ntiles <= 20:
+        xlabper = 1
+    elif ntiles <= 40:
+        xlabper = 2
+    else:
+        xlabper = 5
+
     fig, ax = plt.subplots(figsize = (12,7))
     ax.set_xlabel(description_label)
     ax.set_ylabel("cumulative response")
     plt.suptitle('Cumulative response', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax.set_xticks(np.arange(1, ntiles + 1, 1))
+    ax.set_xticks(np.arange(0, ntiles + 1, xlabper))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
@@ -382,12 +396,19 @@ def plot_cumlift(plot_input, save_fig = True, save_fig_filename = '', highlight_
     else:
         description_label = 'ntile'
       
+    if ntiles <= 20:
+        xlabper = 1
+    elif ntiles <= 40:
+        xlabper = 2
+    else:
+        xlabper = 5
+
     fig, ax = plt.subplots(figsize = (12,7))
     ax.set_xlabel(description_label)
     ax.set_ylabel("cumulative lift")
     plt.suptitle('Cumulative lift', fontsize = 16)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax.set_xticks(np.arange(1, ntiles + 1, 1))
+    ax.set_xticks(np.arange(0, ntiles + 1, xlabper))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.yaxis.set_ticks_position('left')
@@ -547,11 +568,18 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
     else:
         description_label = 'ntile'
     
+    if ntiles <= 20:
+        xlabper = 1
+    elif ntiles <= 40:
+        xlabper = 2
+    else:
+        xlabper = 5
+
     fig, ax = plt.subplots(figsize = (12,7))
     ax.set_xlabel(description_label)
     ax.set_ylabel("cumulative gains")
     plt.suptitle('Cumulative gains', fontsize = 16)
-    ax.set_xticks(np.arange(0, ntiles + 1, 1))
+    ax.set_xticks(np.arange(0, ntiles + 1, xlabper))
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -701,15 +729,21 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     else:
         description_label = 'ntile'
     
+    if ntiles <= 20:
+        xlabper = 1
+    elif ntiles <= 40:
+        xlabper = 2
+    else:
+        xlabper = 5
+
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex = False, sharey = False, figsize = (15,10))
     ax1.set_title('Cumulative gains', fontweight='bold')
     ax1.set_ylabel('cumulative gains')
     #ax1.set_xlabel('decile')
     ax1.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax1.set_xticks(np.arange(0, ntiles + 1, 1))
     ax1.set_ylim(0, 1)
     ax1.set_xlim(0, ntiles)
-    ax1.set_xticks(np.arange(0, ntiles + 1, 1))
+    ax1.set_xticks(np.arange(0, ntiles + 1, xlabper))
     ax1.spines['right'].set_visible(False)
     ax1.spines['top'].set_visible(False)
     ax1.grid(True)
@@ -721,7 +755,7 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     ax2.set_ylabel('cumulative lift')
     #ax2.set_xlabel('decile')
     ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax2.set_xticks(np.arange(1, ntiles + 1, 1))
+    ax2.set_xticks(np.arange(0, ntiles + 1, xlabper))
     ax2.set_xlim(1, ntiles)
     ax2.set_ylim([0, max(plot_input.cumlift)])
     ax2.spines['right'].set_visible(False)
@@ -735,7 +769,7 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     ax3.set_ylabel('response')
     ax3.set_xlabel(description_label)
     ax3.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax3.set_xticks(np.arange(1, ntiles + 1, 1))
+    ax3.set_xticks(np.arange(0, ntiles + 1, xlabper))
     ax3.set_xlim(1, ntiles)
     ax3.set_ylim(0, 1)
     ax3.spines['right'].set_visible(False)
@@ -748,7 +782,7 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     ax4.set_ylabel('cumulative response')
     ax4.set_xlabel(description_label)
     ax4.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax4.set_xticks(np.arange(1, ntiles + 1, 1))
+    ax4.set_xticks(np.arange(0, ntiles + 1, xlabper))
     ax4.set_xlim(1, ntiles)
     ax4.set_ylim(0, 1)
     ax4.spines['right'].set_visible(False)
@@ -1044,7 +1078,7 @@ class modelplotpy(object):
 
         Returns
         -------
-        Pandas dataframe for all dataset and model combination for deciles 1 tot 10.
+        Pandas dataframe with combination of all datasets, models, target values and ntiles.
         It already contains almost all necessary information for model plotting.
 
         Raises
@@ -1157,7 +1191,7 @@ class modelplotpy(object):
 
         Returns
         -------
-        Pandas dataframe, a subset of scores_and_ntiles, for all dataset, model and target value combinations for deciles 1 tot 10.
+        Pandas dataframe, a subset of scores_and_ntiles, for all dataset, model and target value combinations for all ntiles.
         It contains all necessary information for model plotting.
 
         Raises
