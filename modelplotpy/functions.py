@@ -860,6 +860,566 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     plt.show()
     return ax1
 
+def plot_costsrevs(plot_input, fixed_costs, variable_costs_per_unit, profit_per_unit, save_fig = True, save_fig_filename = '', highlight_ntile = False, highlight_how = 'plot_text'):
+    """ Plotting costs / revenue curve
+    
+    Parameters
+    ----------
+    plot_input : pandas dataframe
+        The result from scope_modevalplot().
+    
+    fixed_costs : int / float
+        Specifying the fixed costs related to a selection based on the model. These costs are constant and do not vary with selection size (ntiles).
+    
+    variable_costs_per_unit : int / float
+        Specifying the variable costs per selected unit for a selection based on the model. These costs vary with selection size (ntiles).
+        
+    profit_per_unit : int / float
+        Specifying the profit per unit in case the selected unit converts / responds positively.
+
+    save_fig : bool, default True
+        Save the plot.
+        
+    save_fig_filename : str, default unspecified.
+        Specify the path and filetype to save the plot.
+        If nothing specified, the plot will be saved as jpeg to the current working directory.
+        
+    highlight_ntile : int, default None
+        Highlight the value of the response curve at a specified ntile value.
+        
+    highlight_how : str, plot_text default
+        Highlight_how specifies where information about the model performance is printed. It can be shown as text, on the plot or both.
+    
+    Returns
+    -------
+    It returns a matplotlib.axes._subplots.AxesSubplot object that can be transformed into the same plot with the .figure command.
+    The plot is by default written to disk (save_fig = True). The location and filetype of the file depend on the save_fig_filename parameter.
+    If the save_fig_filename parameter is empty (not specified), the plot will be written to the working directory as png. 
+    Otherwise the location and file type is specified by the user.
+        
+    Raises
+    ------
+    TypeError: If `highlight_ntile` is not specified as an int.
+    ValueError: If the wrong `highlight_how` value is specified.
+    """
+    
+    models   = plot_input.model_label.unique().tolist()
+    datasets = plot_input.dataset_label.unique().tolist()
+    classes  = plot_input.target_class.unique().tolist()
+    scope = plot_input.scope.unique()[0]
+    ntiles = plot_input.ntile.nunique() - 1
+    colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
+    plot_input['variable_costs'] = variable_costs_per_unit * plot_input.cumtot
+    plot_input['investments'] = fixed_costs + plot_input.variable_costs 
+    plot_input['revenues'] = profit_per_unit * plot_input.cumpos
+    
+    if ntiles == 10:
+        description_label = 'decile'
+    elif ntiles == 100:
+        description_label = 'percentile'
+    else:
+        description_label = 'ntile'
+    
+    if ntiles <= 20:
+        xlabper = 1
+    elif ntiles <= 40:
+        xlabper = 2
+    else:
+        xlabper = 5
+    
+    fig, ax = plt.subplots(figsize = (12,7))
+    ax.set_xlabel(description_label)
+    ax.set_ylabel("costs / revenue")
+    plt.suptitle('Costs / Revenues', fontsize = 16)
+    #ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+    ax.set_xticks(np.arange(0, ntiles + 1, xlabper))
+    #ax.set_xticks(np.arange(1, ntiles + 1, 1))
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.grid(True)
+    ax.set_xlim([1, ntiles])
+    #ax.set_ylim([0, 1])
+    
+    if scope == "no_comparison":
+        ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
+        ax.plot(plot_input.ntile, plot_input.revenues, label = classes[0], color = colors[0])
+        ax.plot(plot_input.ntile, plot_input.investments, linestyle = 'dashed', label = "total costs", color = colors[0])
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+    elif scope == "compare_datasets":
+        for col, i in enumerate(datasets):
+            ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.revenues[plot_input.dataset_label == i], label = i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.investments[plot_input.dataset_label == i], linestyle = 'dashed', label = "total costs (%s)" % i, color = colors[col])
+        ax.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
+        ax.legend(loc = 'upper right', shadow = False, frameon = False)
+    elif scope == "compare_models":
+        ax.plot(list(range(0, ntiles + 1, 1)), fixed_costs + variable_costs_per_unit * plot_input.cumtot.unique(), linestyle = 'dashed', label = "total costs", color = 'grey')
+        for col, i in enumerate(models):
+            ax.plot(plot_input.ntile[plot_input.model_label == i], plot_input.revenues[plot_input.model_label == i], label = "revenues (%s)" % i, color = colors[col])
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+        ax.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+    else: #compare_targetclasses
+        for col, i in enumerate(classes):
+            ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.revenues[plot_input.target_class == i], label = i, color = colors[col])
+            ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.investments[plot_input.target_class == i], linestyle = 'dashed', label = "total costs (%s)" % i, color = colors[col])
+        ax.set_title("Scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+    
+    if highlight_ntile != False:
+        
+        if highlight_ntile not in np.linspace(1, ntiles, num = ntiles).tolist():
+            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and %d' % (ntiles))
+            
+        if highlight_how not in ('plot','text','plot_text'):
+            raise ValueError('Invalid highlight_how value, it must be one of the following: plot, text or plot_text.')
+        
+        else:
+            text = ''
+            if scope == "no_comparison":
+                cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, 'revenues'].tolist()
+                plt.plot([1, highlight_ntile], [cumpct[0]] * 2, linestyle = '-.', color = colors[0], lw = 1.5)
+                plt.plot([highlight_ntile] * 2 , [0] + [cumpct[0]], linestyle = '-.', color = colors[0], lw = 1.5)
+                xy = tuple([highlight_ntile] + [cumpct[0]])
+                ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[0])
+                ax.annotate("€" + str(int(cumpct[0])), xy = xy, xytext = (-30, -30), 
+                         textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                         bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[0]), #fc = 'yellow', alpha = 0.3),
+                         arrowprops = dict(arrowstyle = '->', color = 'black'))
+                text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the revenue is %d' % (description_label, highlight_ntile, models[0], datasets[0], classes[0], int(cumpct[0])) + '.\n'
+            elif scope == "compare_datasets":
+                for col, i in enumerate(datasets):
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['dataset_label', 'revenues']]
+                    cumpct = cumpct.revenues[cumpct.dataset_label == i].tolist()
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
+                    ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
+                    ax.annotate("€" + str(int(cumpct[0])), xy = xy, xytext = (-30, -30), 
+                             textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                             bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
+                             arrowprops = dict(arrowstyle = '->', color = 'black'))
+                    text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the revenue is %d' % (description_label, highlight_ntile, models[0], datasets[col], classes[0], int(cumpct[0])) + '.\n'
+            elif scope == "compare_models":
+                for col, i in enumerate(models):
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['model_label', 'revenues']]
+                    cumpct = cumpct.revenues[cumpct.model_label == i].tolist()
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
+                    ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
+                    ax.annotate("€" + str(int(cumpct[0])), xy = xy, xytext = (-30, -30), 
+                             textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                             bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
+                             arrowprops = dict(arrowstyle = '->', color = 'black'))
+                    text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the revenue is %d' % (description_label, highlight_ntile, models[col], datasets[0], classes[0], int(cumpct[0])) + '.\n'
+            else: # compare targetvalues
+                for col, i in enumerate(classes):
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['target_class', 'revenues']]
+                    cumpct = cumpct.revenues[cumpct.target_class == i].tolist()
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
+                    ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
+                    ax.annotate("€" + str(int(cumpct[0])), xy = xy, xytext = (-30, -30), 
+                             textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                             bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
+                             arrowprops = dict(arrowstyle = '->', color = 'black'))
+                    text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the revenue is %d' % (description_label, highlight_ntile, models[0], datasets[0], classes[col], int(cumpct[0])) + '.\n'
+            if highlight_how in ('text', 'plot_text'):
+                print(text[:-1])
+            if highlight_how in ('plot', 'plot_text'):
+                fig.text(.15, -0.001, text[:-1], ha='left')
+    
+    if save_fig == True:
+        if not save_fig_filename:
+            location = '%s/Costs Revenues plot.png' % os.getcwd()
+            plt.savefig(location, dpi = 300)
+            print("The costs / revenues plot is saved in %s" % location)
+        else:
+            plt.savefig(save_fig_filename, dpi = 300)
+            print("The costs / revenues plot is saved in %s" % save_fig_filename)
+        plt.show()
+        plt.gcf().clear()
+    plt.show()
+    return ax
+
+
+def plot_profit(plot_input, fixed_costs, variable_costs_per_unit, profit_per_unit, save_fig = True, save_fig_filename = '', highlight_ntile = False, highlight_how = 'plot_text'):
+    """ Plotting profit curve
+    
+    Parameters
+    ----------
+    plot_input : pandas dataframe
+        The result from scope_modevalplot().
+    
+    fixed_costs : int / float
+        Specifying the fixed costs related to a selection based on the model. These costs are constant and do not vary with selection size (ntiles).
+    
+    variable_costs_per_unit : int / float
+        Specifying the variable costs per selected unit for a selection based on the model. These costs vary with selection size (ntiles).
+        
+    profit_per_unit : int / float
+        Specifying the profit per unit in case the selected unit converts / responds positively.
+    
+    save_fig : bool, default True
+        Save the plot.
+        
+    save_fig_filename : str, default unspecified.
+        Specify the path and filetype to save the plot.
+        If nothing specified, the plot will be saved as jpeg to the current working directory.
+        
+    highlight_ntile : int, default None
+        Highlight the value of the response curve at a specified ntile value.
+        
+    highlight_how : str, plot_text default
+        Highlight_how specifies where information about the model performance is printed. It can be shown as text, on the plot or both.
+    
+    Returns
+    -------
+    It returns a matplotlib.axes._subplots.AxesSubplot object that can be transformed into the same plot with the .figure command.
+    The plot is by default written to disk (save_fig = True). The location and filetype of the file depend on the save_fig_filename parameter.
+    If the save_fig_filename parameter is empty (not specified), the plot will be written to the working directory as png. 
+    Otherwise the location and file type is specified by the user.
+        
+    Raises
+    ------
+    TypeError: If `highlight_ntile` is not specified as an int.
+    ValueError: If the wrong `highlight_how` value is specified.
+    """
+    
+    models   = plot_input.model_label.unique().tolist()
+    datasets = plot_input.dataset_label.unique().tolist()
+    classes  = plot_input.target_class.unique().tolist()
+    scope = plot_input.scope.unique()[0]
+    ntiles = plot_input.ntile.nunique() - 1
+    colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
+    
+    plot_input['variable_costs'] = variable_costs_per_unit * plot_input.cumtot
+    plot_input['investments'] = fixed_costs + plot_input.variable_costs 
+    plot_input['revenues'] = profit_per_unit * plot_input.cumpos
+    plot_input['profit'] = plot_input.revenues - plot_input.investments
+    
+    if ntiles == 10:
+        description_label = 'decile'
+    elif ntiles == 100:
+        description_label = 'percentile'
+    else:
+        description_label = 'ntile'
+    
+    if ntiles <= 20:
+        xlabper = 1
+    elif ntiles <= 40:
+        xlabper = 2
+    else:
+        xlabper = 5
+    
+    fig, ax = plt.subplots(figsize = (12,7))
+    ax.set_xlabel(description_label)
+    ax.set_ylabel("profit")
+    plt.suptitle('Profit', fontsize = 16)
+    #ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+    ax.set_xticks(np.arange(0, ntiles + 1, xlabper))
+    #ax.set_xticks(np.arange(1, ntiles + 1, 1))
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.grid(True)
+    ax.set_xlim([1, ntiles])
+    
+    if scope == "no_comparison":
+        #ax.plot(list(range(0, ntiles + 1, 1)), fixed_costs + variable_costs_per_unit * plot_input.cumtot.unique(), linestyle = 'dashed', label = "total costs", color = 'grey')
+        ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
+        ax.plot(plot_input.ntile, plot_input.profit, label = classes[0], color = colors[0])
+        #ax.plot(plot_input.ntile, plot_input.cumcosts, linestyle = 'dashed', label = "total costs", color = colors[0])
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+    elif scope == "compare_datasets":
+        for col, i in enumerate(datasets):
+            ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.profit[plot_input.dataset_label == i], label = i, color = colors[col])
+            #ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.cumcosts[plot_input.dataset_label == i], linestyle = 'dashed', label = "total costs (%s)" % i, color = colors[col])
+        ax.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
+        ax.legend(loc = 'upper right', shadow = False, frameon = False)
+    elif scope == "compare_models":
+        for col, i in enumerate(models):
+            ax.plot(plot_input.ntile[plot_input.model_label == i], plot_input.profit[plot_input.model_label == i], label = "profit (%s)" % i, color = colors[col])
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+        ax.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+    else: #compare_targetclasses
+        for col, i in enumerate(classes):
+            ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.profit[plot_input.target_class == i], label = i, color = colors[col])
+            #ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.cumcosts[plot_input.target_class == i], linestyle = 'dashed', label = "total costs (%s)" % i, color = colors[col])
+        ax.set_title("Scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+    
+    if highlight_ntile != False:
+        
+        if highlight_ntile not in np.linspace(1, ntiles, num = ntiles).tolist():
+            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and %d' % (ntiles))
+            
+        if highlight_how not in ('plot','text','plot_text'):
+            raise ValueError('Invalid highlight_how value, it must be one of the following: plot, text or plot_text.')
+            
+        else:
+            text = ''
+            if scope == "no_comparison":
+                cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, 'profit'].tolist()
+                plt.plot([1, highlight_ntile], [cumpct[0]] * 2, linestyle = '-.', color = colors[0], lw = 1.5)
+                plt.plot([highlight_ntile] * 2 , [0] + [cumpct[0]], linestyle = '-.', color = colors[0], lw = 1.5)
+                xy = tuple([highlight_ntile] + [cumpct[0]])
+                ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[0])
+                ax.annotate("€" + str(int(cumpct[0])), xy = xy, xytext = (-30, -30), 
+                         textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                         bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[0]), #fc = 'yellow', alpha = 0.3),
+                         arrowprops = dict(arrowstyle = '->', color = 'black'))
+                text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the expected profit is %d' % (description_label, highlight_ntile, models[0], datasets[0], classes[0], int(cumpct[0])) + '.\n'
+            elif scope == "compare_datasets":
+                for col, i in enumerate(datasets):
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['dataset_label', 'profit']]
+                    cumpct = cumpct.profit[cumpct.dataset_label == i].tolist()
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
+                    ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
+                    ax.annotate("€" + str(int(cumpct[0])), xy = xy, xytext = (-30, -30), 
+                             textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                             bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
+                             arrowprops = dict(arrowstyle = '->', color = 'black'))
+                    text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the expected profit is %d' % (description_label, highlight_ntile, models[0], datasets[col], classes[0], int(cumpct[0])) + '.\n'
+            elif scope == "compare_models":
+                for col, i in enumerate(models):
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['model_label', 'profit']]
+                    cumpct = cumpct.profit[cumpct.model_label == i].tolist()
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
+                    ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
+                    ax.annotate("€" + str(int(cumpct[0])), xy = xy, xytext = (-30, -30), 
+                             textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                             bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
+                             arrowprops = dict(arrowstyle = '->', color = 'black'))
+                    text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the expected profit is %d' % (description_label, highlight_ntile, models[col], datasets[0], classes[0], int(cumpct[0])) + '.\n'
+            else: # compare targetvalues
+                for col, i in enumerate(classes):
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['target_class', 'profit']]
+                    cumpct = cumpct.profit[cumpct.target_class == i].tolist()
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
+                    ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
+                    ax.annotate("€" + str(int(cumpct[0])), xy = xy, xytext = (-30, -30), 
+                             textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                             bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
+                             arrowprops = dict(arrowstyle = '->', color = 'black'))
+                    text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the expected profit is %d' % (description_label, highlight_ntile, models[0], datasets[0], classes[col], int(cumpct[0])) + '.\n'
+            if highlight_how in ('text', 'plot_text'):
+                print(text[:-1])
+            if highlight_how in ('plot', 'plot_text'):
+                fig.text(.15, -0.001, text[:-1], ha='left')
+    
+    if save_fig == True:
+        if not save_fig_filename:
+            location = '%s/Profit plot.png' % os.getcwd()
+            plt.savefig(location, dpi = 300)
+            print("The profit plot is saved in %s" % location)
+        else:
+            plt.savefig(save_fig_filename, dpi = 300)
+            print("The profit plot is saved in %s" % save_fig_filename)
+        plt.show()
+        plt.gcf().clear()
+    plt.show()
+    return ax
+
+def plot_roi(plot_input, fixed_costs, variable_costs_per_unit, profit_per_unit, save_fig = True, save_fig_filename = '', highlight_ntile = False, highlight_how = 'plot_text'):
+    """ Plotting ROI curve
+    
+    Parameters
+    ----------
+    plot_input : pandas dataframe
+        The result from scope_modevalplot().
+    
+    fixed_costs : int / float
+        Specifying the fixed costs related to a selection based on the model. These costs are constant and do not vary with selection size (ntiles).
+    
+    variable_costs_per_unit : int / float
+        Specifying the variable costs per selected unit for a selection based on the model. These costs vary with selection size (ntiles).
+        
+    profit_per_unit : int / float
+        Specifying the profit per unit in case the selected unit converts / responds positively.
+    
+    save_fig : bool, default True
+        Save the plot.
+        
+    save_fig_filename : str, default unspecified.
+        Specify the path and filetype to save the plot.
+        If nothing specified, the plot will be saved as jpeg to the current working directory.
+        
+    highlight_ntile : int, default None
+        Highlight the value of the response curve at a specified ntile value.
+        
+    highlight_how : str, plot_text default
+        Highlight_how specifies where information about the model performance is printed. It can be shown as text, on the plot or both.
+    
+    Returns
+    -------
+    It returns a matplotlib.axes._subplots.AxesSubplot object that can be transformed into the same plot with the .figure command.
+    The plot is by default written to disk (save_fig = True). The location and filetype of the file depend on the save_fig_filename parameter.
+    If the save_fig_filename parameter is empty (not specified), the plot will be written to the working directory as png. 
+    Otherwise the location and file type is specified by the user.
+        
+    Raises
+    ------
+    TypeError: If `highlight_ntile` is not specified as an int.
+    ValueError: If the wrong `highlight_how` value is specified.
+    """
+    
+    models   = plot_input.model_label.unique().tolist()
+    datasets = plot_input.dataset_label.unique().tolist()
+    classes  = plot_input.target_class.unique().tolist()
+    scope = plot_input.scope.unique()[0]
+    ntiles = plot_input.ntile.nunique() - 1
+    colors = ("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
+    
+    plot_input['variable_costs'] = variable_costs_per_unit * plot_input.cumtot
+    plot_input['investments'] = fixed_costs + plot_input.variable_costs 
+    plot_input['revenues'] = profit_per_unit * plot_input.cumpos
+    plot_input['profit'] = plot_input.revenues - plot_input.investments
+    plot_input['roi'] = plot_input.profit / plot_input.investments
+    
+    plot_input['variable_costs_tot'] = variable_costs_per_unit * plot_input.tottot
+    plot_input['investments_tot'] = fixed_costs + plot_input.variable_costs_tot
+    plot_input['revenues_tot'] = profit_per_unit * plot_input.postot
+    plot_input['profit_tot'] = plot_input.revenues_tot - plot_input.investments_tot
+    plot_input['roi_ref'] = plot_input.profit_tot / plot_input.investments_tot
+    
+    if ntiles == 10:
+        description_label = 'decile'
+    elif ntiles == 100:
+        description_label = 'percentile'
+    else:
+        description_label = 'ntile'
+    
+    if ntiles <= 20:
+        xlabper = 1
+    elif ntiles <= 40:
+        xlabper = 2
+    else:
+        xlabper = 5
+        
+    fig, ax = plt.subplots(figsize = (12,7))
+    ax.set_xlabel(description_label)
+    ax.set_ylabel("% roi")
+    plt.suptitle('Return on Investment (ROI)', fontsize = 16)
+    ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+    ax.set_xticks(np.arange(0, ntiles + 1, xlabper))
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.grid(True)
+    ax.set_xlim([1, ntiles])
+    
+    if scope == "no_comparison":
+        ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
+        ax.plot(plot_input.ntile, plot_input.roi, label = classes[0], color = colors[0])
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+    elif scope == "compare_datasets":
+        for col, i in enumerate(datasets):
+            ax.plot(plot_input.ntile[plot_input.dataset_label == i], plot_input.roi[plot_input.dataset_label == i], label = i, color = colors[col])
+        ax.set_title("scope: comparing datasets & model: %s & target class: %s" % (models[0], classes[0]), fontweight = 'bold')
+        ax.legend(loc = 'upper right', shadow = False, frameon = False)
+    elif scope == "compare_models":
+        for col, i in enumerate(models):
+            ax.plot(plot_input.ntile[plot_input.model_label == i], plot_input.roi[plot_input.model_label == i], label = "roi (%s)" % i, color = colors[col])
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+        ax.set_title("scope: comparing models & dataset: %s & target class: %s" % (datasets[0], classes[0]), fontweight = 'bold')
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+    else: #compare_targetclasses
+        for col, i in enumerate(classes):
+            ax.plot(plot_input.ntile[plot_input.target_class == i], plot_input.roi[plot_input.target_class == i], label = i, color = colors[col])
+        ax.set_title("Scope: comparing target classes & dataset: %s & model: %s" % (datasets[0], models[0]), fontweight = 'bold')
+        ax.legend(loc = 'lower right', shadow = False, frameon = False)
+    
+    if highlight_ntile != False:
+        
+        if highlight_ntile not in np.linspace(1, ntiles, num = ntiles).tolist():
+            raise TypeError('Invalid value for highlight_ntile parameter. It must be an int value between 1 and %d' % (ntiles))
+            
+        if highlight_how not in ('plot','text','plot_text'):
+            raise ValueError('Invalid highlight_how value, it must be one of the following: plot, text or plot_text.')
+            
+        else:
+            text = ''
+            if scope == "no_comparison":
+                cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, 'roi'].tolist()
+                plt.plot([1, highlight_ntile], [cumpct[0]] * 2, linestyle = '-.', color = colors[0], lw = 1.5)
+                plt.plot([highlight_ntile] * 2 , [0] + [cumpct[0]], linestyle = '-.', color = colors[0], lw = 1.5)
+                xy = tuple([highlight_ntile] + [cumpct[0]])
+                ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[0])
+                ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
+                         textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                         bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[0]), #fc = 'yellow', alpha = 0.3),
+                         arrowprops = dict(arrowstyle = '->', color = 'black'))
+                text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the expected expected return on investment is %d' % (description_label, highlight_ntile, models[0], datasets[0], classes[0], int(cumpct[0] * 100)) + '%.\n'
+            elif scope == "compare_datasets":
+                for col, i in enumerate(datasets):
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['dataset_label', 'roi']]
+                    cumpct = cumpct.roi[cumpct.dataset_label == i].tolist()
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
+                    ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
+                    ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
+                             textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                             bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
+                             arrowprops = dict(arrowstyle = '->', color = 'black'))
+                    text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the expected expected return on investment is %d' % (description_label, highlight_ntile, models[0], datasets[col], classes[0], int(cumpct[0] * 100)) + '%.\n'
+            elif scope == "compare_models":
+                for col, i in enumerate(models):
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['model_label', 'roi']]
+                    cumpct = cumpct.roi[cumpct.model_label == i].tolist()
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
+                    ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
+                    ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
+                             textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                             bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
+                             arrowprops = dict(arrowstyle = '->', color = 'black'))
+                    text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the expected expected return on investment is %d' % (description_label, highlight_ntile, models[col], datasets[0], classes[0], int(cumpct[0] * 100)) + '%.\n'
+            else: # compare targetvalues
+                for col, i in enumerate(classes):
+                    cumpct = plot_input.loc[plot_input.ntile == highlight_ntile, ['target_class', 'roi']]
+                    cumpct = cumpct.roi[cumpct.target_class == i].tolist()
+                    plt.plot([1, highlight_ntile], cumpct * 2, linestyle = '-.', color = colors[col], lw = 1.5)
+                    plt.plot([highlight_ntile] * 2, [0] + cumpct, linestyle = '-.', color = colors[col], lw = 1.5)
+                    xy = tuple([highlight_ntile] + cumpct)
+                    ax.plot(xy[0], xy[1], ".r", ms = 20, color = colors[col])
+                    ax.annotate(str(int(cumpct[0] * 100)) + "%", xy = xy, xytext = (-30, -30), 
+                             textcoords='offset points', ha = 'center', va = 'bottom', color = 'black',
+                             bbox=dict(boxstyle='round, pad = 0.4', alpha = 1, fc = colors[col]), #fc = 'yellow', alpha = 0.3),
+                             arrowprops = dict(arrowstyle = '->', color = 'black'))
+                    text += 'When we select %s 1 until %d from model %s in dataset %s the percentage of %s cases in the expected return on investment is %d' % (description_label, highlight_ntile, models[0], datasets[0], classes[col], int(cumpct[0] * 100)) + '%.\n'
+            if highlight_how in ('text', 'plot_text'):
+                print(text[:-1])
+            if highlight_how in ('plot', 'plot_text'):
+                fig.text(.15, -0.001, text[:-1], ha='left')
+    
+    if save_fig == True:
+        if not save_fig_filename:
+            location = '%s/ROI plot.png' % os.getcwd()
+            plt.savefig(location, dpi = 300)
+            print("The roi plot is saved in %s" % location)
+        else:
+            plt.savefig(save_fig_filename, dpi = 300)
+            print("The roi plot is saved in %s" % save_fig_filename)
+        plt.show()
+        plt.gcf().clear()
+    plt.show()
+    return ax
+
 def range01(x):
     """ Normalizing input
     
