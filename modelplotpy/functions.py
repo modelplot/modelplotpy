@@ -1128,7 +1128,8 @@ def plot_profit(plot_input, fixed_costs, variable_costs_per_unit, profit_per_uni
     ax.xaxis.set_ticks_position('bottom')
     ax.grid(True)
     ax.set_xlim([1, ntiles])
-    
+    ax.plot(list(range(1, ntiles + 1, 1)), [0] * ntiles, linestyle = 'dashed', label = "break even", color = 'grey')
+
     if scope == "no_comparison":
         #ax.plot(list(range(0, ntiles + 1, 1)), fixed_costs + variable_costs_per_unit * plot_input.cumtot.unique(), linestyle = 'dashed', label = "total costs", color = 'grey')
         ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
@@ -1320,7 +1321,8 @@ def plot_roi(plot_input, fixed_costs, variable_costs_per_unit, profit_per_unit, 
     ax.xaxis.set_ticks_position('bottom')
     ax.grid(True)
     ax.set_xlim([1, ntiles])
-    
+    ax.plot(list(range(1, ntiles + 1, 1)), [0] * ntiles, linestyle = 'dashed', label = "break even", color = 'grey')
+
     if scope == "no_comparison":
         ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
         ax.plot(plot_input.ntile, plot_input.roi, label = classes[0], color = colors[0])
