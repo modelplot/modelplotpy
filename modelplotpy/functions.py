@@ -1590,7 +1590,7 @@ class modelplotpy(object):
                 probabilities = pd.DataFrame(data = y_pred, index = self.feature_data[j].index)
                 probabilities.columns = 'prob_' + self.models[i].classes_
                 # combine the datasets
-                dataset = pd.concat([self.feature_data[j], probabilities, y_true], axis = 1, join_axes = [self.feature_data[j].index])
+                dataset = pd.concat([self.feature_data[j], probabilities, y_true], axis = 1)
                 dataset['dataset_label'] = self.dataset_labels[j]
                 dataset['model_label'] = self.model_labels[i]
                 # remove the feature columns
