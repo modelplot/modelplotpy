@@ -1588,7 +1588,7 @@ class modelplotpy(object):
                 # probabilities and rename them
                 y_pred = self.models[i].predict_proba(self.feature_data[j])
                 probabilities = pd.DataFrame(data = y_pred, index = self.feature_data[j].index)
-                probabilities.columns = 'prob_' + self.models[i].classes_
+                probabilities.columns = 'prob_' + self.models[i].classes_.astype('str').astype('O')
                 # combine the datasets
                 dataset = pd.concat([self.feature_data[j], probabilities, y_true], axis = 1)
                 dataset['dataset_label'] = self.dataset_labels[j]
