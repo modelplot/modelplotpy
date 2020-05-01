@@ -1598,7 +1598,7 @@ class modelplotpy(object):
                 # make deciles
                 # loop over different outcomes
                 n = dataset.shape[0]
-                for k in self.models[i].classes_:
+                for k in self.models[i].classes_.astype('str').astype('O'):
                     #! Added small proportion to prevent equal decile bounds and reset to 0-1 range (to prevent probs > 1.0)
                     np.random.seed(self.seed)
                     prob_plus_smallrandom = range01(dataset[['prob_' + k]] + (np.random.uniform(size = (n, 1)) / 1000000))
