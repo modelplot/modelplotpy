@@ -1769,7 +1769,7 @@ class modelplotpy(object):
         # check parameters
         select_model_label = check_input(select_model_label, self.model_labels, 'select_model_label')
         select_dataset_label = check_input(select_dataset_label, self.dataset_labels, 'select_dataset_label')
-        select_targetclass = check_input(select_targetclass, list(self.models[1].classes_), 'select_targetclass')
+        select_targetclass = check_input(select_targetclass, list(self.models[0].classes_), 'select_targetclass')
 
         if scope == 'no_comparison':
             print('Default scope value no_comparison selected, single evaluation line will be plotted.')
@@ -1787,7 +1787,7 @@ class modelplotpy(object):
                 select_targetclass = [self.label_data[0].value_counts(ascending = True).idxmin()]
                 print("The label with smallest class is %s" % select_targetclass[0])
             else:
-                select_targetvalue = list(self.models[1].classes_)
+                select_targetvalue = list(self.models[0].classes_)
             plot_input = ntiles_aggregate[
                 (ntiles_aggregate.model_label == select_model_label[0]) & 
                 (ntiles_aggregate.dataset_label == select_dataset_label[0]) & 
@@ -1809,7 +1809,7 @@ class modelplotpy(object):
                 select_targetclass = [self.label_data[0].value_counts(ascending = True).idxmin()]
                 print("The label with smallest class is %s" % select_targetclass)
             else:
-                select_targetclass = list(self.models[1].classes_)
+                select_targetclass = list(self.models[0].classes_)
             plot_input = ntiles_aggregate[
                 (ntiles_aggregate.model_label.isin(select_model_label)) &
                 (ntiles_aggregate.dataset_label == select_dataset_label[0]) &
@@ -1830,7 +1830,7 @@ class modelplotpy(object):
                 select_targetclass = [self.label_data[0].value_counts(ascending = True).idxmin()]
                 print("The label with smallest class is %s" % select_targetclass)
             else:
-                select_targetclass = list(self.models[1].classes_)
+                select_targetclass = list(self.models[0].classes_)
             plot_input = ntiles_aggregate[
                 (ntiles_aggregate.model_label == select_model_label[0]) &
                 (ntiles_aggregate.dataset_label.isin(select_dataset_label)) &
@@ -1848,7 +1848,7 @@ class modelplotpy(object):
             if len(select_targetclass) >= 2:
                 select_targetclass = select_targetclass
             else:
-                select_targetclass = list(self.models[1].classes_)
+                select_targetclass = list(self.models[0].classes_)
             plot_input = ntiles_aggregate[
                 (ntiles_aggregate.model_label == select_model_label[0]) &
                 (ntiles_aggregate.dataset_label == select_dataset_label[0]) &
