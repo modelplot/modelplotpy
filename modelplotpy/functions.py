@@ -74,7 +74,7 @@ def plot_response(plot_input, save_fig = True, save_fig_filename = '', highlight
     ax.xaxis.set_ticks_position('bottom')
     ax.grid(True)
     ax.set_xlim([1, ntiles])
-    ax.set_ylim([0, 1])
+    ax.set_ylim([0, round((max(plot_input.pct)+0.05)*100,-1)/100])
     
     if scope == "no_comparison":
         ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
@@ -244,7 +244,7 @@ def plot_cumresponse(plot_input, save_fig = True, save_fig_filename = '', highli
     ax.xaxis.set_ticks_position('bottom')
     ax.grid(True)
     ax.set_xlim([1, ntiles])
-    ax.set_ylim([0, 1])
+    ax.set_ylim([0, round((max(plot_input.cumpct)+0.05)*100,-1)/100])
     
     if scope == "no_comparison":
         ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
@@ -588,7 +588,7 @@ def plot_cumgains(plot_input, save_fig = True, save_fig_filename = '', highlight
     #ax.plot(list(range(0, ntiles + 1, 1)), np.linspace(0, 1, num = ntiles + 1).tolist(), linestyle = 'dashed', label = "minimal gains", color = 'grey')    
     ax.grid(True)
     ax.set_xlim([0, ntiles])
-    ax.set_ylim([0, 1])
+    ax.set_ylim([0,1])
     
     if scope == "no_comparison":
         ax.set_title("model: %s & dataset: %s & target class: %s" % (models[0], datasets[0], classes[0]), fontweight = 'bold')
@@ -771,7 +771,7 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     ax3.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     ax3.set_xticks(np.arange(0, ntiles + 1, xlabper))
     ax3.set_xlim(1, ntiles)
-    ax3.set_ylim(0, 1)
+    ax3.set_ylim([0, round((max(plot_input.pct)+0.05)*100,-1)/100])
     ax3.spines['right'].set_visible(False)
     ax3.spines['top'].set_visible(False)
     ax3.grid(True)
@@ -784,7 +784,7 @@ def plot_all(plot_input, save_fig = True, save_fig_filename = ''):
     ax4.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     ax4.set_xticks(np.arange(0, ntiles + 1, xlabper))
     ax4.set_xlim(1, ntiles)
-    ax4.set_ylim(0, 1)
+    ax4.set_ylim([0, round((max(plot_input.cumpct)+0.05)*100,-1)/100])
     ax4.spines['right'].set_visible(False)
     ax4.spines['top'].set_visible(False)
     ax4.grid(True)
